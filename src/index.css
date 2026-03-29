@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --font-sans: 'Poppins', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 210 40% 12%;
+  --card: 0 0% 99%;
+  --card-foreground: 210 40% 12%;
+  --border: 210 20% 88%;
+  --primary: 208 79% 27%;       /* ocean blue */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 49 90% 55%;      /* sandy gold */
+  --secondary-foreground: 210 40% 12%;
+  --muted: 210 20% 96%;
+  --muted-foreground: 210 15% 50%;
+  --accent: 193 100% 42%;       /* turquoise */
+  --accent-foreground: 0 0% 100%;
+  --radius: 0.75rem;
+}
+
+@layer base {
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
+  body { @apply bg-background text-foreground font-sans antialiased; }
+  h1, h2, h3 { font-family: 'Playfair Display', serif; }
+}
+
+@layer utilities {
+  .text-gold { color: #f5c01e; }
+  .bg-ocean { background-color: hsl(208, 79%, 27%); }
+  .bg-ocean-dark { background-color: hsl(208, 79%, 18%); }
+  .btn-gold {
+    background: linear-gradient(135deg, #f5c01e, #e6a800);
+    color: #1a2a3a;
+    font-weight: 700;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+  }
+  .btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(245, 192, 30, 0.4);
+  }
+  .btn-ocean {
+    background: hsl(208, 79%, 27%);
+    color: white;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+  }
+  .btn-ocean:hover {
+    background: hsl(208, 79%, 20%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(11, 77, 126, 0.3);
+  }
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  }
+  .hero-overlay {
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(11,77,126,0.6) 100%);
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+  }
+  .badge-gold {
+    background: linear-gradient(135deg, #f5c01e, #e6a800);
+    color: #1a2a3a;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .badge-ocean {
+    background: hsl(208, 79%, 27%);
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .badge-green {
+    background: #16a34a;
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .price-tag {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    color: hsl(208, 79%, 27%);
+    font-size: 1.5rem;
+  }
+  .star { color: #f5c01e; }
+}

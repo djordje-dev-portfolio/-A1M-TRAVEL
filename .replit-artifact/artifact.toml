@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/aria-travel/"
+title = "Aria Travel — Turistička Agencija"
+version = "1.0.0"
+id = "artifacts/aria-travel"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/aria-travel/" ]
+localPort = 22131
+
+[services.development]
+run = "pnpm --filter @workspace/aria-travel run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/aria-travel", "run", "build" ]
+publicDir = "artifacts/aria-travel/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22131"
+BASE_PATH = "/aria-travel/"

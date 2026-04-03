@@ -1,0 +1,151 @@
+/** Spanish copy for hotel destination cards + detail modal (overlays EN bundle for `es` locale). */
+export const destinationsHotelsEs: Record<string, Record<string, unknown>> = {
+  "hot-ikos": {
+    name: "Ikos Aria — Kos, Grecia",
+    badge: "Todo incluido de lujo",
+    country: "Grecia",
+    location: "Bahía de Kefalos, Kos, Dodecaneso, Grecia",
+    desc: "Todo incluido de lujo galardonado en Kos — playa privada y nueve restaurantes.",
+    aboutDestination:
+      "Kos es una isla verde del Egeo, cuna de Hipócrates, con yacimientos antiguos y calas de agua turquesa.",
+    aboutHotel:
+      "Ikos Aria ofrece el concepto Infinite Lifestyle todo incluido, varias piscinas, spa y minibar premium.",
+    rooms: "Habitaciones con vistas al jardín o al mar; suites estilo sobre el agua con servicios premium.",
+    tip: "Reserva pronto una suite con vistas al mar — se agotan en temporada alta.",
+    beach: "Playa privada de arena dorada; deportes acuáticos incluidos.",
+    includes: [
+      "Infinite Lifestyle todo incluido",
+      "Minibar premium",
+      "Todos los deportes acuáticos",
+      "9 restaurantes",
+      "Spa",
+    ],
+    facilities: [
+      "9 restaurantes incluidos",
+      "Piscina infinita 50 m",
+      "Playa privada",
+      "Spa 2.000 m²",
+      "Deportes acuáticos gratis",
+    ],
+    available: ["1–8 jun", "15–22 jun", "6–13 jul", "20–27 jul", "10–17 ago"],
+  },
+  "hot-jumeirah": {
+    name: "Jumeirah Burj Al Arab — Dubái",
+    badge: "7★ único",
+    country: "EAU",
+    location: "Playa Jumeirah, Dubái, EAU",
+    desc: "Burj Al Arab — hotel icónico en forma de vela, mayordomo y cena submarina.",
+    aboutDestination:
+      "Dubái combina rascacielos récord, aventuras en el desierto y compras de lujo.",
+    aboutHotel:
+      "Todas las suites son dúplex con mayordomo; el restaurante Al Mahara junto al acuario de tiburones.",
+    rooms: "Suites desde 170 m²; suites diplomáticas y con vistas al cielo disponibles.",
+    tip: "Cócteles al atardecer en Skyview Bar — reserva con antelación y consulta el consumo mínimo.",
+    includes: [
+      "Estancia 5 noches",
+      "Servicio de mayordomo",
+      "Tour en Rolls-Royce",
+      "Tratamiento de spa",
+      "Cena en Al Mahara",
+    ],
+    facilities: [
+      "Mayordomo 24/7",
+      "Flota Rolls-Royce",
+      "Restaurante submarino",
+      "Sky bar a 200 m",
+      "Gold Spa 1.700 m²",
+      "Playa privada",
+    ],
+    available: ["Todo el año", "Festivos con suplemento"],
+  },
+  "hot-amansara": {
+    name: "Amansara — Siem Reap, Camboya",
+    badge: "Joy cultural",
+    country: "Camboya",
+    location: "Siem Reap, Camboya — a 6 km de Angkor Wat",
+    desc: "Antigua villa real cerca de Angkor Wat — acceso privado al amanecer en el templo.",
+    aboutDestination:
+      "Angkor Wat es el monumento religioso más grande del mundo; Siem Reap es la puerta de entrada.",
+    aboutHotel:
+      "Amansara cuenta con solo 24 suites, guías privados para visitas al alba y cocina jemer.",
+    rooms: "Suites alrededor de piscinas privadas y jardines tropicales.",
+    tip: "El amanecer en Angkor Wat con guía privado es inolvidable — sal muy temprano.",
+    includes: ["Estancia", "Desayuno y cena", "Acceso privado a Angkor", "Guía personal", "Traslado"],
+    facilities: ["Acceso privado a Angkor Wat", "Guía arqueólogo", "Spa", "Piscina privada"],
+    available: ["Oct–abr (temporada seca)", "Nov–feb (ideal)"],
+  },
+  "hot-bora": {
+    name: "Four Seasons — Bora Bora",
+    badge: "Paraíso en la tierra",
+    country: "Polinesia Francesa",
+    location: "Motu Tehotu, Bora Bora",
+    desc: "Four Seasons Bora Bora — bungalows sobre el agua sobre una laguna turquesa.",
+    aboutDestination:
+      "La laguna de Bora Bora es famosa por mantas, jardines de coral y picos volcánicos.",
+    aboutHotel:
+      "Bungalows sobre el agua con suelo de cristal, snorkel en el arrecife y gastronomía polinesia.",
+    rooms: "Bungalows y suites sobre el agua; villas de playa con piscina privada.",
+    tip: "Prueba el tour de snorkel con mantas — suele ser lo más memorable del viaje.",
+    beach: "Acceso directo a la laguna desde tu terraza.",
+    includes: [
+      "Bungalow sobre el agua",
+      "Desayuno",
+      "Canoa al amanecer",
+      "Experiencia con mantas",
+      "Snorkel",
+    ],
+    facilities: [
+      "Bungalows sobre el agua",
+      "Snorkel en jardín de coral",
+      "Nado con mantas",
+      "Spa en la laguna",
+    ],
+    available: ["Todo el año", "Abr–nov (mejor clima)"],
+  },
+  "hot-rosewood": {
+    name: "Rosewood — Hong Kong",
+    badge: "Lujo urbano",
+    country: "Hong Kong",
+    location: "Victoria Dockside, Kowloon, Hong Kong",
+    desc: "Rosewood Hong Kong — vistas al puerto Victoria y gastronomía Michelin.",
+    aboutDestination:
+      "Hong Kong mezcla historia colonial, iconos del skyline y una de las mejores escenas gastronómicas de Asia.",
+    aboutHotel:
+      "Habitaciones con vistas al puerto, gran spa Asaya y varios restaurantes, incluida cocina china Michelin.",
+    rooms: "Habitaciones premier desde 60 m²; suites con vistas panorámicas al puerto.",
+    tip: "El espectáculo Symphony of Lights desde el paseo de Tsim Sha Tsui a las 20:00.",
+    includes: ["Estancia", "Desayuno para 2", "Acceso al spa", "Limo al aeropuerto", "Vistas al puerto"],
+    facilities: [
+      "Vistas al puerto Victoria",
+      "Spa Asaya en 6 plantas",
+      "10 restaurantes",
+      "Legacy House Michelin ⭐",
+      "Piscina infinita",
+    ],
+    available: ["Todo el año", "Año Nuevo chino (paquete especial)"],
+  },
+  "hot-lefay": {
+    name: "Lefay Resort — Lago de Garda, Italia",
+    badge: "Bienestar y naturaleza",
+    country: "Italia",
+    location: "Gargnano, Lago de Garda, Lombardía, Italia",
+    desc: "Lefay Resort en el Lago de Garda — spa de bienestar, cocina ecológica y vistas alpinas.",
+    aboutDestination:
+      "El Lago de Garda combina clima mediterráneo, montaña y pueblos con historia.",
+    aboutHotel:
+      "Spa de inspiración taoísta, piscina infinita hacia el lago y cocina orgánica lombarda.",
+    rooms: "Suites con terraza y vistas al lago; grandes suites con jacuzzi exterior.",
+    tip: "Excursión en barco a Sirmione y Limone — clásico del lago italiano.",
+    beach: "Plataformas de baño en el lago y agua cristalina en verano.",
+    includes: ["Estancia", "Desayuno y cena", "Acceso al spa", "Kayak y SUP", "Programa wellness"],
+    facilities: [
+      "Spa taoísta 3.500 m²",
+      "Piscina infinita",
+      "Piscina interior",
+      "Tenis",
+      "Yoga y pilates",
+      "3 restaurantes orgánicos",
+    ],
+    available: ["Abr–oct (temporada del lago)", "Jun–ago (ideal)"],
+  },
+};

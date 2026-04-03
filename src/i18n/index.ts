@@ -11,6 +11,7 @@ import pagesEs from "./locales/pages-es.json";
 import pagesEl from "./locales/pages-el.json";
 import { destinationsEn } from "./destinationsContent";
 import { destinationsMetaEn } from "./destinationsMetaEn";
+import { destinationsHotelsEs } from "./destinationsHotelsEs";
 
 function mergeDestinationBundles(
   base: Record<string, Record<string, unknown>>,
@@ -45,17 +46,20 @@ function deepMerge(a: Record<string, unknown>, b: Record<string, unknown>): Reco
   return out;
 }
 
-const en = deepMerge(enBase as Record<string, unknown>, pagesEn as Record<string, unknown>) as Record<
-  string,
-  unknown
->;
-en.destinations = mergeDestinationBundles(
+const destinationBundleEn = mergeDestinationBundles(
   destinationsEn as Record<string, Record<string, unknown>>,
   destinationsMetaEn as Record<string, Record<string, unknown>>
 );
 
+const en = deepMerge(enBase as Record<string, unknown>, pagesEn as Record<string, unknown>) as Record<
+  string,
+  unknown
+>;
+en.destinations = destinationBundleEn;
+
 const sr = deepMerge(deepMerge(srBase as Record<string, unknown>, pagesEn as Record<string, unknown>), pagesSr as Record<string, unknown>);
 const es = deepMerge(deepMerge(esBase as Record<string, unknown>, pagesEn as Record<string, unknown>), pagesEs as Record<string, unknown>);
+es.destinations = mergeDestinationBundles(destinationBundleEn, destinationsHotelsEs);
 const el = deepMerge(deepMerge(elBase as Record<string, unknown>, pagesEn as Record<string, unknown>), pagesEl as Record<string, unknown>);
 
 void i18n

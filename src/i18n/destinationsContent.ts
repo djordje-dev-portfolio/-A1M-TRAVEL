@@ -77,6 +77,17 @@ export const destinationsEn: Record<
     tip: "Book Alhambra tickets well in advance if visiting Granada.",
     beach: "Long sandy beach; calm sea in summer.",
   },
+  "leto-spanija-bcn": {
+    desc: "Barcelona — Gaudí, city beaches and Mediterranean life; hotel + flight package.",
+    aboutDestination:
+      "Barcelona is one of the Mediterranean’s most exciting cities — Gaudí’s architecture, flamenco and beach life. Sagrada Família (under construction since the 1880s) is a UNESCO-listed icon. Park Güell, the Gothic Quarter, La Boqueria market and Las Ramblas are must-sees. Barceloneta beach is the hub for swimming, with sand and palm-lined walks.",
+    aboutHotel:
+      "Hotel Arts Barcelona is an iconic 44-storey tower on Barceloneta — a true beachfront luxury hotel. It offers 397 rooms and suites with sea or city views. Restaurant Enoteca has two Michelin stars. The infinity pool on the 42nd floor is among the most striking in Europe.",
+    rooms:
+      "Deluxe City View (48 m²) with balcony over Barcelona. Sea View Room (55 m²) with direct Mediterranean and Barceloneta views. Sky Suite (90 m²) on high floors with a 270° panorama.",
+    tip: "A Barcelona Card (~3 days, ~€50) covers public transport and discounts. Book Sagrada Família tickets well in advance.",
+    beach: "Barceloneta beach — golden sand; sea around 26°C in July/August. The hotel sits on the beach — the sea is minutes from your room.",
+  },
   "zim-kopaonik": {
     desc: "Serbia’s largest ski area — 55 km of slopes right at the hotel. Olympic spa.",
     aboutDestination:

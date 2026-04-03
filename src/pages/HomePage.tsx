@@ -70,6 +70,7 @@ const featuredDest: (DestinationDetail & { img: string; badge: string; rating: n
     available: ["Jun 5–15", "Jul 3–13", "Aug 7–17", "Sep 2–12"],
   },
   {
+    destId: "leto-spanija-bcn",
     name: "Španija — Barcelona, Hotel Arts",
     img: "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1559825481-12a05cc00344?w=600&q=80"],

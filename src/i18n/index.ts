@@ -11,7 +11,10 @@ import pagesEs from "./locales/pages-es.json";
 import pagesEl from "./locales/pages-el.json";
 import { destinationsEn } from "./destinationsContent";
 import { destinationsMetaEn } from "./destinationsMetaEn";
+import { destinationsPackagesEs } from "./destinationsPackagesEs";
 import { destinationsHotelsEs } from "./destinationsHotelsEs";
+import { destinationsPackagesEl } from "./destinationsPackagesEl";
+import { destinationsHotelsEl } from "./destinationsHotelsEl";
 
 function mergeDestinationBundles(
   base: Record<string, Record<string, unknown>>,
@@ -59,8 +62,15 @@ en.destinations = destinationBundleEn;
 
 const sr = deepMerge(deepMerge(srBase as Record<string, unknown>, pagesEn as Record<string, unknown>), pagesSr as Record<string, unknown>);
 const es = deepMerge(deepMerge(esBase as Record<string, unknown>, pagesEn as Record<string, unknown>), pagesEs as Record<string, unknown>);
-es.destinations = mergeDestinationBundles(destinationBundleEn, destinationsHotelsEs);
+es.destinations = mergeDestinationBundles(
+  mergeDestinationBundles(destinationBundleEn, destinationsPackagesEs),
+  destinationsHotelsEs
+);
 const el = deepMerge(deepMerge(elBase as Record<string, unknown>, pagesEn as Record<string, unknown>), pagesEl as Record<string, unknown>);
+el.destinations = mergeDestinationBundles(
+  mergeDestinationBundles(destinationBundleEn, destinationsPackagesEl),
+  destinationsHotelsEl
+);
 
 void i18n
   .use(LanguageDetector)

@@ -31,14 +31,15 @@ export default function LanguageSwitcher({ scrolled, mobile }: Props) {
         value={LANGS.some((l) => l.code === code) ? code : "en"}
         onChange={(e) => void i18n.changeLanguage(e.target.value)}
         aria-label={t("language.label")}
-        className={`text-sm font-medium rounded-lg border px-2 py-1.5 pr-7 max-w-[140px] focus:outline-none focus:ring-2 focus:ring-yellow-400/50 ${
-          scrolled || mobile
-            ? "bg-white border-gray-200 text-gray-800"
-            : "bg-white/15 border-white/30 text-white backdrop-blur-sm"
-        }`}
+        className={
+          "text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-900 " +
+          "px-2 py-1.5 pr-8 max-w-[150px] shadow-md " +
+          "focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-1 " +
+          (scrolled || mobile ? "" : "ring-2 ring-white/60")
+        }
       >
         {LANGS.map((l) => (
-          <option key={l.code} value={l.code}>
+          <option key={l.code} value={l.code} className="bg-white text-gray-900">
             {l.label}
           </option>
         ))}

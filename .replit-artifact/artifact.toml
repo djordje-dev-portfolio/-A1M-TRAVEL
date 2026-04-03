@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/aria-travel/"
-title = "Aria Travel — Turistička Agencija"
+title = "A1M Travel — Turistička Agencija"
 version = "1.0.0"
 id = "artifacts/aria-travel"
 router = "path"

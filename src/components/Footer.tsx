@@ -1,8 +1,10 @@
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 import TermsModal from "./TermsModal";
 import CopyrightModal from "./CopyrightModal";
 
 export default function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
@@ -15,11 +17,11 @@ export default function Footer() {
               </div>
               <div>
                 <p className="font-sans font-black text-xl text-white tracking-wider">A1M <span className="text-yellow-400">Travel</span></p>
-                <p className="text-xs text-gray-400 tracking-widest">Turistička Agencija</p>
+                <p className="text-xs text-gray-400 tracking-widest">{t("footer.agency")}</p>
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-              Vaš pouzdani partner za nezaboravna putovanja. Letovanja, zimovanja, izleti i ekskluzivni hotelski smeštaji po najboljim cenama.
+              {t("footer.blurb")}
             </p>
             <div className="flex gap-3 mt-5">
               {["Facebook", "Instagram", "TikTok"].map(s => (
@@ -32,9 +34,14 @@ export default function Footer() {
 
           {/* Links */}
           <div>
-            <h4 className="font-bold text-white mb-4 uppercase tracking-wider text-sm">Ponuda</h4>
+            <h4 className="font-bold text-white mb-4 uppercase tracking-wider text-sm">{t("footer.offer")}</h4>
             <ul className="space-y-2.5">
-              {[["Letovanja", "/letovanja"], ["Zimovanja", "/zimovanja"], ["Jednodnevni Izleti", "/izleti"], ["Ekskluzivni Hoteli", "/hoteli"]].map(([label, href]) => (
+              {[
+                [t("footer.letovanja"), "/letovanja"],
+                [t("footer.zimovanja"), "/zimovanja"],
+                [t("footer.izleti"), "/izleti"],
+                [t("footer.hoteli"), "/hoteli"],
+              ].map(([label, href]) => (
                 <li key={href}>
                   <Link href={href} className="text-gray-400 hover:text-yellow-400 transition-colors text-sm">{label}</Link>
                 </li>
@@ -44,7 +51,7 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="font-bold text-white mb-4 uppercase tracking-wider text-sm">Kontakt</h4>
+            <h4 className="font-bold text-white mb-4 uppercase tracking-wider text-sm">{t("footer.contact")}</h4>
             <ul className="space-y-3 text-sm text-gray-400">
               <li className="flex items-start gap-2">
                 <span className="mt-0.5">📍</span>
@@ -67,11 +74,11 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-gray-500 text-sm">© {new Date().getFullYear()} A1M Travel. Sva prava zadržana.</p>
+          <p className="text-gray-500 text-sm">© {new Date().getFullYear()} A1M Travel. {t("footer.rights")}</p>
           <div className="flex gap-6 text-sm text-gray-500">
-            <Link href="/o-nama" className="hover:text-yellow-400 transition-colors">O Nama</Link>
-            <TermsModal trigger="Uslovi Korišćenja" />
-            <CopyrightModal trigger="All Rights Reserved" />
+            <Link href="/o-nama" className="hover:text-yellow-400 transition-colors">{t("footer.oNama")}</Link>
+            <TermsModal trigger={t("footer.terms")} />
+            <CopyrightModal trigger={t("footer.copyrightTrigger")} />
           </div>
         </div>
       </div>

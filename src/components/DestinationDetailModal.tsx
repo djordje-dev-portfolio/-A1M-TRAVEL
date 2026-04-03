@@ -1,7 +1,11 @@
 import BookingModal from "./BookingModal";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useTranslatedDestination } from "@/hooks/useTranslatedDestination";
+import { formatNights } from "@/lib/i18nFormat";
 
 export interface DestinationDetail {
+  destId?: string;
   name: string;
   price: string;
   badge?: string;
@@ -28,12 +32,26 @@ interface Props {
 }
 
 export default function DestinationDetailModal({ detail, onClose }: Props) {
+  const { t, i18n } = useTranslation();
+  const { field, arrField } = useTranslatedDestination(detail);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [activeImg, setActiveImg] = useState(0);
 
   if (!detail) return null;
 
   const images = [detail.img, ...(detail.gallery || [])];
+  const title = field("name");
+  const badge = field("badge");
+  const location = field("location");
+  const nightsLabel = formatNights(detail.nights, t, i18n.language);
+  const aboutDestination = field("aboutDestination");
+  const aboutHotel = field("aboutHotel");
+  const rooms = field("rooms");
+  const tip = field("tip");
+  const beach = field("beach");
+  const facilities = arrField("facilities");
+  const includes = arrField("includes");
+  const available = arrField("available");
 
   return (
     <>
@@ -43,7 +61,7 @@ export default function DestinationDetailModal({ detail, onClose }: Props) {
 
           {/* Hero Image */}
           <div className="relative h-64 md:h-80 overflow-hidden rounded-t-3xl">
-            <img src={images[activeImg]} alt={detail.name} className="w-full h-full object-cover transition-all duration-500"/>
+            <img src={images[activeImg]} alt={title} className="w-full h-full object-cover transition-all duration-500"/>
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"/>
 
             {/* Close */}
@@ -53,7 +71,7 @@ export default function DestinationDetailModal({ detail, onClose }: Props) {
 
             {/* Badge + Stars */}
             <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
-              {detail.badge && <span className="badge-gold text-xs">{detail.badge}</span>}
+              {badge && <span className="badge-gold text-xs">{badge}</span>}
               {detail.stars && (
                 <span className="bg-white/90 backdrop-blur-sm rounded-full px-2.5 py-1 text-xs font-bold text-yellow-600">
                   {"⭐".repeat(Math.min(detail.stars, 5))}
@@ -63,11 +81,11 @@ export default function DestinationDetailModal({ detail, onClose }: Props) {
 
             {/* Title */}
             <div className="absolute bottom-4 left-4 right-4">
-              <h2 className="font-serif text-2xl md:text-3xl font-bold text-white">{detail.name}</h2>
+              <h2 className="font-serif text-2xl md:text-3xl font-bold text-white">{title}</h2>
               <div className="flex items-center gap-3 mt-1 flex-wrap">
-                {detail.nights && <span className="text-white/80 text-sm">⏱️ {detail.nights}</span>}
+                {nightsLabel && <span className="text-white/80 text-sm">⏱️ {nightsLabel}</span>}
                 {detail.rating && <span className="text-yellow-300 font-bold text-sm">⭐ {detail.rating}/5.0</span>}
-                <span className="text-white/80 text-sm">📍 {detail.location}</span>
+                <span className="text-white/80 text-sm">📍 {location}</span>
               </div>
             </div>
 
@@ -90,11 +108,11 @@ export default function DestinationDetailModal({ detail, onClose }: Props) {
             {/* Price + Book */}
             <div className="flex items-center justify-between bg-blue-50 rounded-2xl px-5 py-4">
               <div>
-                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Cena po osobi</p>
-                <p className="text-3xl font-black text-blue-800">od {detail.price}</p>
+                <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{t("detail.pricePerPerson")}</p>
+                <p className="text-3xl font-black text-blue-800">{t("home.from")} {detail.price}</p>
               </div>
               <button onClick={() => setBookingOpen(true)} className="btn-gold px-6 py-3 font-bold text-sm rounded-xl">
-                Rezervišite →
+                {t("detail.book")}
               </button>
             </div>
 
@@ -102,12 +120,12 @@ export default function DestinationDetailModal({ detail, onClose }: Props) {
             <div>
               <h3 className="font-serif text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <span className="w-1 h-6 bg-yellow-400 rounded-full inline-block"/>
-                O destinaciji
+                {t("detail.aboutDest")}
               </h3>
-              <p className="text-gray-700 text-sm leading-relaxed">{detail.aboutDestination}</p>
+              <p className="text-gray-700 text-sm leading-relaxed">{aboutDestination}</p>
               {detail.beach && (
                 <div className="mt-3 bg-blue-50 rounded-xl p-3 text-sm text-blue-800">
-                  🏖️ <strong>Plaža:</strong> {detail.beach}
+                  🏖️ <strong>{t("detail.beach")}</strong> {beach}
                 </div>
               )}
             </div>
@@ -116,25 +134,25 @@ export default function DestinationDetailModal({ detail, onClose }: Props) {
             <div>
               <h3 className="font-serif text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <span className="w-1 h-6 bg-yellow-400 rounded-full inline-block"/>
-                Smeštaj
+                {t("detail.stay")}
               </h3>
-              <p className="text-gray-700 text-sm leading-relaxed">{detail.aboutHotel}</p>
+              <p className="text-gray-700 text-sm leading-relaxed">{aboutHotel}</p>
               {detail.rooms && (
                 <div className="mt-3 bg-gray-50 rounded-xl p-3 text-sm text-gray-700">
-                  🛏️ <strong>Sobe:</strong> {detail.rooms}
+                  🛏️ <strong>{t("detail.rooms")}</strong> {rooms}
                 </div>
               )}
             </div>
 
             {/* Sadržaji */}
-            {detail.facilities && detail.facilities.length > 0 && (
+            {facilities.length > 0 && (
               <div>
                 <h3 className="font-serif text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
                   <span className="w-1 h-6 bg-yellow-400 rounded-full inline-block"/>
-                  Hotelski sadržaji
+                  {t("detail.facilities")}
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {detail.facilities.map(f => (
+                  {facilities.map(f => (
                     <span key={f} className="bg-white border border-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full font-medium shadow-sm">
                       {f}
                     </span>
@@ -147,10 +165,10 @@ export default function DestinationDetailModal({ detail, onClose }: Props) {
             <div>
               <h3 className="font-serif text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <span className="w-1 h-6 bg-green-400 rounded-full inline-block"/>
-                Uključeno u cenu
+                {t("detail.included")}
               </h3>
               <div className="flex flex-wrap gap-2">
-                {detail.includes.map(i => (
+                {includes.map(i => (
                   <span key={i} className="bg-green-50 text-green-700 border border-green-200 text-xs px-3 py-1.5 rounded-full font-semibold">
                     ✓ {i}
                   </span>
@@ -162,10 +180,10 @@ export default function DestinationDetailModal({ detail, onClose }: Props) {
             <div>
               <h3 className="font-serif text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <span className="w-1 h-6 bg-blue-400 rounded-full inline-block"/>
-                Slobodni termini
+                {t("detail.dates")}
               </h3>
               <div className="flex flex-wrap gap-2">
-                {detail.available.map(dt => (
+                {available.map(dt => (
                   <span key={dt} className="bg-blue-50 text-blue-700 border border-blue-200 text-sm px-4 py-1.5 rounded-full font-semibold">
                     📅 {dt}
                   </span>
@@ -178,8 +196,8 @@ export default function DestinationDetailModal({ detail, onClose }: Props) {
               <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 flex gap-3">
                 <span className="text-2xl">💡</span>
                 <div>
-                  <p className="font-bold text-yellow-800 text-sm mb-1">Savet agencije</p>
-                  <p className="text-yellow-700 text-sm">{detail.tip}</p>
+                  <p className="font-bold text-yellow-800 text-sm mb-1">{t("detail.agencyTip")}</p>
+                  <p className="text-yellow-700 text-sm">{tip}</p>
                 </div>
               </div>
             )}
@@ -187,10 +205,10 @@ export default function DestinationDetailModal({ detail, onClose }: Props) {
             {/* Bottom CTA */}
             <div className="flex gap-3 pt-2">
               <button onClick={onClose} className="flex-1 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-600 hover:border-gray-300 text-sm transition-colors">
-                Zatvori
+                {t("detail.close")}
               </button>
               <button onClick={() => setBookingOpen(true)} className="flex-1 py-3 btn-gold font-bold text-sm rounded-xl">
-                🌴 Rezervišite odmah
+                🌴 {t("detail.bookNow")}
               </button>
             </div>
           </div>
@@ -200,8 +218,8 @@ export default function DestinationDetailModal({ detail, onClose }: Props) {
       <BookingModal
         isOpen={bookingOpen}
         onClose={() => setBookingOpen(false)}
-        destination={detail.name}
-        price={`od ${detail.price}`}
+        destination={title}
+        price={`${t("home.from")} ${detail.price}`}
         destinationType={detail.destinationType}
       />
     </>

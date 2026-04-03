@@ -1,6 +1,7 @@
 import type { DestinationDetail } from "../components/DestinationDetailModal";
 
 export type LocalDest = DestinationDetail & {
+  destId: string;
   img: string;
   badge: string;
   nights: string;
@@ -10,12 +11,16 @@ export type LocalDest = DestinationDetail & {
   country: string;
 };
 
-function parsePrice(price: string): number {
-  return parseInt(price.replace(/[^0-9]/g, "")) || 0;
+function parsePrice(price: string | number): number {
+  if (typeof price === "number") return price;
+  if (!price) return 0;
+  const str = String(price);
+  return parseInt(str.replace(/[^0-9]/g, ""), 10) || 0;
 }
 
 export const letovanjaSrbija: LocalDest[] = [
   {
+    destId: "leto-zlatibor-mona",
     name: "Zlatibor — Hotel Mona",
     img: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=600&q=80"],
@@ -33,6 +38,7 @@ export const letovanjaSrbija: LocalDest[] = [
     available: ["Jul 1–8", "Jul 15–22", "Aug 5–12", "Aug 20–27"],
   },
   {
+    destId: "leto-vrnjacka",
     name: "Vrnjačka Banja — Wellness Spa",
     img: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80"],
@@ -50,6 +56,7 @@ export const letovanjaSrbija: LocalDest[] = [
     available: ["Jun 10–15", "Jul 3–8", "Aug 1–6", "Sep 5–10"],
   },
   {
+    destId: "leto-tara",
     name: "Tara — Eko Resort",
     img: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80"],
@@ -70,6 +77,7 @@ export const letovanjaSrbija: LocalDest[] = [
 
 export const letovanjaInostranstvo: LocalDest[] = [
   {
+    destId: "leto-grcka-krf",
     name: "Grčka — Krf, Hotel Dassia Beach",
     img: "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1586500036706-41963de24d8b?w=600&q=80"],
@@ -88,6 +96,7 @@ export const letovanjaInostranstvo: LocalDest[] = [
     available: ["Jun 8–15", "Jun 22–29", "Jul 6–13", "Jul 20–27", "Aug 3–10"],
   },
   {
+    destId: "leto-turska-ant",
     name: "Turska — Antalija, Club Hotel",
     img: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1540541338287-41700207dee6?w=600&q=80"],
@@ -106,6 +115,7 @@ export const letovanjaInostranstvo: LocalDest[] = [
     available: ["Jun 1–8", "Jun 15–22", "Jul 1–8", "Jul 15–22", "Aug 1–8", "Aug 15–22"],
   },
   {
+    destId: "leto-egipat-hur",
     name: "Egipat — Hurgada, Arabela Resort",
     img: "https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1546948630-b2aefd08f3fa?w=600&q=80"],
@@ -124,6 +134,7 @@ export const letovanjaInostranstvo: LocalDest[] = [
     available: ["Jun 5–15", "Jul 3–13", "Aug 7–17", "Sep 2–12"],
   },
   {
+    destId: "leto-spanija-kosta",
     name: "Španija — Kosta del Sol, Playa Resort",
     img: "https://images.unsplash.com/photo-1509233725247-49e657c54213?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1559825481-12a05cc00344?w=600&q=80"],
@@ -145,6 +156,7 @@ export const letovanjaInostranstvo: LocalDest[] = [
 
 export const zimovanjaSrbija: LocalDest[] = [
   {
+    destId: "zim-kopaonik",
     name: "Kopaonik — Grand Hotel & Spa",
     img: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1542332213-31f87348e0a4?w=600&q=80"],
@@ -162,6 +174,7 @@ export const zimovanjaSrbija: LocalDest[] = [
     available: ["Dec 27–Jan 3", "Jan 10–17", "Jan 24–31", "Feb 7–14", "Feb 21–28", "Mar 7–14"],
   },
   {
+    destId: "zim-zlatibor-snow",
     name: "Zlatibor — Mona Hotel Snow",
     img: "https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1549880338-65ddcdfd017b?w=600&q=80"],
@@ -179,6 +192,7 @@ export const zimovanjaSrbija: LocalDest[] = [
     available: ["Dec 26–31", "Jan 5–10", "Jan 18–23", "Feb 1–6", "Feb 15–20", "Mar 1–6"],
   },
   {
+    destId: "zim-stara",
     name: "Stara Planina — Ski Jablaničko",
     img: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80"],
@@ -199,6 +213,7 @@ export const zimovanjaSrbija: LocalDest[] = [
 
 export const zimovanjaInostranstvo: LocalDest[] = [
   {
+    destId: "zim-slo",
     name: "Slovenija — Kranjska Gora",
     img: "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1478827536114-da961b7f86d2?w=600&q=80"],
@@ -216,6 +231,7 @@ export const zimovanjaInostranstvo: LocalDest[] = [
     available: ["Dec 27–Jan 1", "Jan 10–15", "Jan 24–29", "Feb 7–12", "Feb 21–26"],
   },
   {
+    destId: "zim-aus",
     name: "Austrija — Innsbruck Ski Resort",
     img: "https://images.unsplash.com/photo-1478827536114-da961b7f86d2?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=600&q=80"],
@@ -233,6 +249,7 @@ export const zimovanjaInostranstvo: LocalDest[] = [
     available: ["Dec 21–28", "Jan 4–11", "Jan 18–25", "Feb 8–15", "Feb 22–Mar 1"],
   },
   {
+    destId: "zim-ita",
     name: "Italija — Dolomiti, Val Gardena",
     img: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80"],
@@ -250,6 +267,7 @@ export const zimovanjaInostranstvo: LocalDest[] = [
     available: ["Dec 22–29", "Jan 3–10", "Jan 17–24", "Feb 7–14", "Feb 21–28"],
   },
   {
+    destId: "zim-ch",
     name: "Švajcarska — Verbier",
     img: "https://images.unsplash.com/photo-1491555103944-7c647fd857e6?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=80"],
@@ -270,6 +288,7 @@ export const zimovanjaInostranstvo: LocalDest[] = [
 
 export const hoteli: LocalDest[] = [
   {
+    destId: "hot-ikos",
     name: "Ikos Aria — Kos, Grčka",
     img: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=600&q=80"],
@@ -288,6 +307,7 @@ export const hoteli: LocalDest[] = [
     available: ["Jun 1–8", "Jun 15–22", "Jul 6–13", "Jul 20–27", "Aug 10–17"],
   },
   {
+    destId: "hot-jumeirah",
     name: "Jumeirah Burj Al Arab — Dubai",
     img: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1495482432709-455f228a40d7?w=600&q=80"],
@@ -305,6 +325,7 @@ export const hoteli: LocalDest[] = [
     available: ["Tokom cele godine", "Blagdanima uz doplatu"],
   },
   {
+    destId: "hot-amansara",
     name: "Amansara — Siem Reap, Kambodža",
     img: "https://images.unsplash.com/photo-1565967511849-76a60a516170?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80"],
@@ -322,6 +343,7 @@ export const hoteli: LocalDest[] = [
     available: ["Oktobar–April (sušna sezona)", "Novembar–Februar (idealan period)"],
   },
   {
+    destId: "hot-bora",
     name: "Four Seasons — Bora Bora",
     img: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&q=80"],
@@ -340,6 +362,7 @@ export const hoteli: LocalDest[] = [
     available: ["Tokom cele godine", "Apr–Nov (idealna klima)"],
   },
   {
+    destId: "hot-rosewood",
     name: "Rosewood — Hong Kong",
     img: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1574144113084-b6f450cc5673?w=600&q=80"],
@@ -357,6 +380,7 @@ export const hoteli: LocalDest[] = [
     available: ["Tokom cele godine", "Chinese New Year (poseban paket)"],
   },
   {
+    destId: "hot-lefay",
     name: "Lefay Resort — Lago di Garda, Italija",
     img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=600&q=80"],
@@ -378,6 +402,7 @@ export const hoteli: LocalDest[] = [
 
 export const izleti: LocalDest[] = [
   {
+    destId: "izlet-tara",
     name: "Drinska klisura — Rafting",
     img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80",
     gallery: [],
@@ -395,6 +420,7 @@ export const izleti: LocalDest[] = [
     available: ["Maj–Septembar", "Svaki vikend"],
   },
   {
+    destId: "izlet-djavolja",
     name: "Đavolja varoš — Mistična Srbija",
     img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
     gallery: [],
@@ -412,6 +438,7 @@ export const izleti: LocalDest[] = [
     available: ["Tokom cele godine", "Svake nedelje"],
   },
   {
+    destId: "izlet-frushka",
     name: "Manastiri Fruške Gore",
     img: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=600&q=80",
     gallery: [],
@@ -429,6 +456,25 @@ export const izleti: LocalDest[] = [
     available: ["Tokom cele godine", "Svake subote"],
   },
   {
+    destId: "izlet-nis",
+    name: "Niš — Medijana i Niška Tvrđava",
+    img: "https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?w=600&q=80",
+    gallery: ["https://images.unsplash.com/photo-1524813686514-a57563d77965?w=600&q=80"],
+    price: "25€", nights: "1 dan", stars: 4, rating: 4.7,
+    badge: "Istorijski", destinationType: "izlet",
+    desc: "Rodni grad cara Konstantina. Rimska palata Medijana, Niška Tvrđava i Čele kula — istorija u kamenu.",
+    country: "Srbija",
+    location: "Niš, Srbija — 215 km od Loznice",
+    aboutDestination: "Niš je treći po veličini grad Srbije i jedan od najstarijih gradova na Balkanu.",
+    aboutHotel: "Jednodnevni izlet sa polazkom iz Loznice ili Beograda.",
+    rooms: "",
+    facilities: ["AC turistički autobus", "Stručni istoričar-vodič", "Ulaznice za sve lokalitete", "Osiguranje putnika"],
+    tip: "Ne propustite nišku roštiljanicu u centru — nišvil roštilj je lokalna specijalnost.",
+    includes: ["Prevoz AC autobusom", "Stručni vodič — istoričar", "Ulaznice", "Osiguranje"],
+    available: ["Svake nedelje", "Prvom subotom u mesecu", "Po dogovoru za grupe"],
+  },
+  {
+    destId: "izlet-bg",
     name: "Beograd City Tour",
     img: "https://images.unsplash.com/photo-1555990793-da11153b2473?w=600&q=80",
     gallery: [],

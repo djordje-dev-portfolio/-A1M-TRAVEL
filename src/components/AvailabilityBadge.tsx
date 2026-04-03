@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 const MONTHS: Record<string, number> = {
   Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
   Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11,
@@ -43,13 +45,14 @@ interface AvailabilityBadgeProps {
 }
 
 export default function AvailabilityBadge({ dates, size = "md" }: AvailabilityBadgeProps) {
+  const { t } = useTranslation();
   const { status } = getAvailabilityStatus(dates);
 
   const cfg = {
-    available: { dot: "bg-green-400",  text: "text-green-800",  bg: "bg-green-100/90",  label: "Slobodni termini" },
-    limited:   { dot: "bg-orange-400", text: "text-orange-800", bg: "bg-orange-100/90", label: "Poslednji termin" },
-    full:      { dot: "bg-red-400",    text: "text-red-800",    bg: "bg-red-100/90",    label: "Popunjeno" },
-    always:    { dot: "bg-blue-400",   text: "text-blue-800",   bg: "bg-blue-100/90",   label: "Dostupno" },
+    available: { dot: "bg-green-400",  text: "text-green-800",  bg: "bg-green-100/90",  label: t("availability.available") },
+    limited:   { dot: "bg-orange-400", text: "text-orange-800", bg: "bg-orange-100/90", label: t("availability.limited") },
+    full:      { dot: "bg-red-400",    text: "text-red-800",    bg: "bg-red-100/90",    label: t("availability.full") },
+    always:    { dot: "bg-blue-400",   text: "text-blue-800",   bg: "bg-blue-100/90",   label: t("availability.always") },
   }[status];
 
   const px   = size === "sm" ? "px-2.5 py-1"   : "px-3 py-1.5";
@@ -70,6 +73,7 @@ interface AvailabilityDatesProps {
 }
 
 export function AvailabilityDates({ dates, max = 5 }: AvailabilityDatesProps) {
+  const { t } = useTranslation();
   const { status } = getAvailabilityStatus(dates);
   if (status === "always") {
     return (
@@ -105,7 +109,7 @@ export function AvailabilityDates({ dates, max = 5 }: AvailabilityDatesProps) {
       })}
       {rest > 0 && (
         <span className="text-xs px-2.5 py-1 rounded-full font-semibold border bg-gray-50 text-gray-500 border-gray-200">
-          +{rest} više
+          {t("common.more", { count: rest })}
         </span>
       )}
     </div>

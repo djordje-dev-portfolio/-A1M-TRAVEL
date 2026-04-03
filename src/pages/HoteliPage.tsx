@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useDestLineString, useTranslatedDestination } from "@/hooks/useTranslatedDestination";
 import BookingModal from "../components/BookingModal";
 import DestinationDetailModal, { type DestinationDetail } from "../components/DestinationDetailModal";
 import AvailabilityBadge from "../components/AvailabilityBadge";
 
-const hotels: (DestinationDetail & { img: string; badge: string; stars: number; rating: number; desc: string; country: string })[] = [
+const hotels: (DestinationDetail & { destId?: string; img: string; badge: string; stars: number; rating: number; desc: string; country: string })[] = [
   {
+    destId: "hot-ikos",
     name: "Ikos Aria — Kos, Grčka",
     img: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80",
     gallery: [
@@ -26,6 +29,7 @@ const hotels: (DestinationDetail & { img: string; badge: string; stars: number; 
     available: ["Jun 1–8", "Jun 15–22", "Jul 6–13", "Jul 20–27", "Aug 10–17"],
   },
   {
+    destId: "hot-jumeirah",
     name: "Jumeirah Burj Al Arab — Dubai",
     img: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80",
     gallery: [
@@ -46,6 +50,7 @@ const hotels: (DestinationDetail & { img: string; badge: string; stars: number; 
     available: ["Tokom cele godine", "Blagdanima uz doplatu", "New Year Gala (poseban paket)"],
   },
   {
+    destId: "hot-amansara",
     name: "Amansara — Siem Reap, Kambodža",
     img: "https://images.unsplash.com/photo-1565967511849-76a60a516170?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80"],
@@ -63,6 +68,7 @@ const hotels: (DestinationDetail & { img: string; badge: string; stars: number; 
     available: ["Oktobar–April (sušna sezona)", "Novembar–Februar (idealan period)", "Po dogovoru (ostatak godine)"],
   },
   {
+    destId: "hot-bora",
     name: "Four Seasons — Bora Bora",
     img: "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=600&q=80",
     gallery: [
@@ -84,6 +90,7 @@ const hotels: (DestinationDetail & { img: string; badge: string; stars: number; 
     available: ["Tokom cele godine", "Apr–Nov (idealna klima)", "Dec–Mar (tropske kiše, niže cene)"],
   },
   {
+    destId: "hot-rosewood",
     name: "Rosewood — Hong Kong",
     img: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1574144113084-b6f450cc5673?w=600&q=80"],
@@ -101,6 +108,7 @@ const hotels: (DestinationDetail & { img: string; badge: string; stars: number; 
     available: ["Tokom cele godine", "Chinese New Year (poseban paket)", "Dragon Boat Festival"],
   },
   {
+    destId: "hot-lefay",
     name: "Lefay Resort — Lago di Garda, Italija",
     img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
     gallery: [
@@ -124,6 +132,7 @@ const hotels: (DestinationDetail & { img: string; badge: string; stars: number; 
 ];
 
 export default function HoteliPage() {
+  const { t } = useTranslation();
   const [modal, setModal] = useState<{ open: boolean; name: string; price: string }>({ open: false, name: "", price: "" });
   const [countryFilter, setCountryFilter] = useState<string>("");
   const [selectedDetail, setSelectedDetail] = useState<DestinationDetail | null>(null);
@@ -136,6 +145,66 @@ export default function HoteliPage() {
 
   const list = countryFilter ? hotels.filter(h => h.country === countryFilter) : hotels;
 
+  function HotelRow({ hotel }: { hotel: (typeof hotels)[number] }) {
+    const desc = useDestLineString(hotel.destId, "desc", hotel.desc);
+    const { field, arrField } = useTranslatedDestination(hotel);
+    const name = field("name");
+    const badge = field("badge");
+    const location = field("location");
+    const facilities = arrField("facilities");
+    return (
+      <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+        <div className="grid grid-cols-1 lg:grid-cols-5">
+          <div className="lg:col-span-2 relative h-72 lg:h-auto overflow-hidden">
+            <img src={hotel.img} alt={name} className="w-full h-full object-cover"/>
+            <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/40 to-transparent"/>
+            <div className="absolute top-4 left-4 flex flex-col gap-2 items-start">
+              <span className="badge-gold">{badge}</span>
+              <AvailabilityBadge dates={arrField("available")} size="sm" />
+            </div>
+            <div className="absolute bottom-4 left-4">
+              <span className="bg-white/90 text-yellow-600 font-bold text-xs px-3 py-1 rounded-full">
+                ⭐ {hotel.rating} / 5.0
+              </span>
+            </div>
+          </div>
+          <div className="lg:col-span-3 p-8 flex flex-col justify-between">
+            <div>
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h3 className="font-serif text-2xl font-bold text-gray-900">{name}</h3>
+                  <p className="text-blue-600 text-sm mt-1">📍 {location}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">{t("common.perNight")}</p>
+                  <p className="price-tag">{t("home.from")} {hotel.price}</p>
+                </div>
+              </div>
+              <p className="text-gray-600 leading-relaxed mb-4">{desc}</p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {facilities.slice(0, 5).map(f => (
+                  <span key={f} className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-medium">{f}</span>
+                ))}
+                {facilities.length > 5 && (
+                  <span className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-medium cursor-pointer hover:bg-blue-100"
+                    onClick={() => setSelectedDetail(hotel)}>{t("common.facilitiesMore", { count: facilities.length - 5 })}</span>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-3 mt-2">
+              <button onClick={() => setSelectedDetail(hotel)} className="flex-1 py-3 border-2 border-blue-700 text-blue-700 hover:bg-blue-50 font-bold text-sm rounded-xl transition-colors">
+                {t("pages.hoteli.viewDetails")}
+              </button>
+              <button onClick={() => setModal({ open: true, name, price: hotel.price })} className="flex-1 py-3 btn-gold font-bold text-sm rounded-xl">
+                {t("pages.hoteli.book")}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       {/* Hero */}
@@ -143,84 +212,34 @@ export default function HoteliPage() {
         <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1600&q=80" alt="Luxury hotel" className="w-full h-full object-cover"/>
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/70"/>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white pt-20">
-          <p className="text-yellow-400 font-semibold uppercase tracking-widest text-sm mb-2">Ekskluzivni smeštaj</p>
-          <h1 className="font-serif text-5xl font-bold text-white mb-3">Hoteli sveta</h1>
-          <p className="text-white/80 text-lg">Kolekcija najboljeg hotelskog iskustva na planeti</p>
+          <p className="text-yellow-400 font-semibold uppercase tracking-widest text-sm mb-2">{t("pages.hoteli.heroTag")}</p>
+          <h1 className="font-serif text-5xl font-bold text-white mb-3">{t("pages.hoteli.heroTitle")}</h1>
+          <p className="text-white/80 text-lg">{t("pages.hoteli.heroSub")}</p>
         </div>
       </div>
 
       {/* Info bar */}
       <div className="bg-yellow-500 text-black py-3">
         <div className="max-w-7xl mx-auto px-4 flex gap-8 text-sm flex-wrap justify-center font-semibold">
-          <span>🏆 <strong>World Travel Awards</strong> pobednici</span>
-          <span>🛎️ <strong>Concierge</strong> usluga 24/7</span>
-          <span>✈️ <strong>VIP transfer</strong> po dolasku</span>
+          <span>🏆 {t("pages.hoteli.info1")}</span>
+          <span>🛎️ {t("pages.hoteli.info2")}</span>
+          <span>✈️ {t("pages.hoteli.info3")}</span>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         {countryFilter && (
           <div className="mb-6 flex items-center gap-3">
-            <span className="text-blue-700 font-semibold text-sm">🔍 Prikazano za: <strong>{countryFilter}</strong></span>
+            <span className="text-blue-700 font-semibold text-sm">🔍 {t("pages.hoteli.shown")} <strong>{countryFilter}</strong></span>
             <button onClick={() => setCountryFilter("")} className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded-full font-medium transition-colors">
-              Prikaži sve ✕
+              {t("common.showAll")}
             </button>
           </div>
         )}
 
         <div className="grid grid-cols-1 gap-10">
           {list.map((hotel) => (
-            <div key={hotel.name} className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
-              <div className="grid grid-cols-1 lg:grid-cols-5">
-                {/* Image */}
-                <div className="lg:col-span-2 relative h-72 lg:h-auto overflow-hidden">
-                  <img src={hotel.img} alt={hotel.name} className="w-full h-full object-cover"/>
-                  <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/40 to-transparent"/>
-                  <div className="absolute top-4 left-4 flex flex-col gap-2 items-start">
-                    <span className="badge-gold">{hotel.badge}</span>
-                    <AvailabilityBadge dates={hotel.available || []} size="sm" />
-                  </div>
-                  <div className="absolute bottom-4 left-4">
-                    <span className="bg-white/90 text-yellow-600 font-bold text-xs px-3 py-1 rounded-full">
-                      ⭐ {hotel.rating} / 5.0
-                    </span>
-                  </div>
-                </div>
-                {/* Content */}
-                <div className="lg:col-span-3 p-8 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="font-serif text-2xl font-bold text-gray-900">{hotel.name}</h3>
-                        <p className="text-blue-600 text-sm mt-1">📍 {hotel.location}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-500">Noćenje / os</p>
-                        <p className="price-tag">od {hotel.price}</p>
-                      </div>
-                    </div>
-                    <p className="text-gray-600 leading-relaxed mb-4">{hotel.desc}</p>
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {(hotel.facilities ?? []).slice(0, 5).map(f => (
-                        <span key={f} className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full font-medium">{f}</span>
-                      ))}
-                      {(hotel.facilities ?? []).length > 5 && (
-                        <span className="text-xs bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-medium cursor-pointer hover:bg-blue-100"
-                          onClick={() => setSelectedDetail(hotel)}>+{(hotel.facilities ?? []).length - 5} više →</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex gap-3 mt-2">
-                    <button onClick={() => setSelectedDetail(hotel)} className="flex-1 py-3 border-2 border-blue-700 text-blue-700 hover:bg-blue-50 font-bold text-sm rounded-xl transition-colors">
-                      Pogledaj detaljnije →
-                    </button>
-                    <button onClick={() => setModal({ open: true, name: hotel.name, price: hotel.price })} className="flex-1 py-3 btn-gold font-bold text-sm rounded-xl">
-                      Rezervišite
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <HotelRow key={hotel.name} hotel={hotel} />
           ))}
         </div>
       </div>

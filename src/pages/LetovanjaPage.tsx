@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useDestLineString, useTranslatedDestination } from "@/hooks/useTranslatedDestination";
+import { formatNights } from "@/lib/i18nFormat";
 import BookingModal from "../components/BookingModal";
 import DestinationDetailModal, { type DestinationDetail } from "../components/DestinationDetailModal";
 import AvailabilityBadge, { AvailabilityDates } from "../components/AvailabilityBadge";
@@ -12,6 +15,7 @@ const COUNTRY_KEYWORDS: Record<string, string[]> = {
 
 const srbija: (DestinationDetail & { img: string; badge: string; nights: string; stars: number; rating: number; desc: string; includes: string[]; available: string[] })[] = [
   {
+    destId: "leto-zlatibor-mona",
     name: "Zlatibor — Hotel Mona",
     img: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=600&q=80",
     gallery: [
@@ -31,6 +35,7 @@ const srbija: (DestinationDetail & { img: string; badge: string; nights: string;
     tip: "Obavezno posetite Drvengrad i Mećavnik Emira Kusturice (20 min vožnje) — etno-selo napravljeno od starih drvenih kuća iz cele Srbije. Pravo čudo arhitekture i kulture koje ostavlja bez daha.",
   },
   {
+    destId: "leto-vrnjacka",
     name: "Vrnjačka Banja — Wellness Spa",
     img: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=600&q=80"],
@@ -47,6 +52,7 @@ const srbija: (DestinationDetail & { img: string; badge: string; nights: string;
     tip: "Preporučujemo 5-noćni wellness paket koji uključuje 2 terapeutske masaže, 3 banjska tretmana i specijalni dijetetski plan — idealno za regeneraciju, detoks i oporavak od stresa.",
   },
   {
+    destId: "leto-tara",
     name: "Tara — Eko Resort",
     img: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80"],
@@ -66,6 +72,7 @@ const srbija: (DestinationDetail & { img: string; badge: string; nights: string;
 
 const inostranstvo: (DestinationDetail & { img: string; badge: string; nights: string; stars: number; rating: number; desc: string; includes: string[]; available: string[] })[] = [
   {
+    destId: "leto-grcka-krf",
     name: "Grčka — Krf, Hotel Dassia Beach",
     img: "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=600&q=80",
     gallery: [
@@ -86,6 +93,7 @@ const inostranstvo: (DestinationDetail & { img: string; badge: string; nights: s
     tip: "Preporučujemo celonevni izlet brodom po uvali Paleokastritsa sa zaustavljanjem u ribarskoj taverni — jedna od najlepših stvari u Grčkoj. Rezervišite kroz hotel za cenu oko 35€.",
   },
   {
+    destId: "leto-turska-ant",
     name: "Turska — Antalija, Club Hotel",
     img: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=600&q=80",
     gallery: [
@@ -106,6 +114,7 @@ const inostranstvo: (DestinationDetail & { img: string; badge: string; nights: s
     tip: "Ne propustite posetu antičkom Aspendosu (45 min vožnje) sa jednim od najočuvanijih rimskih amfiteatara na svetu. Organizovani transfer iz hotela dostupan svaki dan oko 09:30.",
   },
   {
+    destId: "leto-egipat-hur",
     name: "Egipat — Hurgada, Arabela Resort",
     img: "https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=600&q=80",
     gallery: [
@@ -126,6 +135,7 @@ const inostranstvo: (DestinationDetail & { img: string; badge: string; nights: s
     tip: "Preporučujemo PADI Open Water kurs — u svega 3 dana postajete sertifikovani ronilac i otvara vam se potpuno novi svet koralnih grebena Crvenog mora. Grupni kursevi od 150€.",
   },
   {
+    destId: "leto-spanija-kosta",
     name: "Španija — Kosta del Sol, Playa Resort",
     img: "https://images.unsplash.com/photo-1509233725247-49e657c54213?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1559825481-12a05cc00344?w=600&q=80"],
@@ -145,6 +155,7 @@ const inostranstvo: (DestinationDetail & { img: string; badge: string; nights: s
 ];
 
 export default function LetovanjaPage() {
+  const { t, i18n } = useTranslation();
   const [modal, setModal] = useState<{ open: boolean; name: string; price: string }>({ open: false, name: "", price: "" });
   const [tab, setTab] = useState<"srbija" | "inostranstvo">("inostranstvo");
   const [countryFilter, setCountryFilter] = useState<string>("");
@@ -164,6 +175,60 @@ export default function LetovanjaPage() {
 
   const openBooking = (name: string, price: string) => setModal({ open: true, name, price });
 
+  function DestCard({ d }: { d: (typeof srbija)[number] }) {
+    const desc = useDestLineString(d.destId, "desc", d.desc);
+    const { field, arrField } = useTranslatedDestination(d);
+    const name = field("name");
+    const badge = field("badge");
+    const includes = arrField("includes");
+    const available = arrField("available");
+    return (
+      <div className="bg-white rounded-3xl shadow-lg overflow-hidden card-hover border border-gray-100">
+        <div className="relative h-64 overflow-hidden">
+          <img src={d.img} alt={name} className="w-full h-full object-cover"/>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"/>
+          <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
+            <span className="badge-gold">{badge}</span>
+            <AvailabilityBadge dates={available} size="sm" />
+          </div>
+          <div className="absolute top-4 right-4 bg-white/90 rounded-full px-3 py-1 text-sm font-bold text-yellow-600">
+            {"⭐".repeat(d.stars)}
+          </div>
+          <div className="absolute bottom-4 left-4 right-4">
+            <h3 className="font-serif font-bold text-xl text-white">{name}</h3>
+            <p className="text-white/80 text-sm">{formatNights(d.nights, t, i18n.language)}</p>
+          </div>
+        </div>
+        <div className="p-6">
+          <p className="text-gray-600 text-sm leading-relaxed mb-4">{desc}</p>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {includes.map(i => (
+              <span key={i} className="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium">✓ {i}</span>
+            ))}
+          </div>
+          <div className="mb-5">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{t("pages.letovanja.slobodni")}</p>
+            <AvailabilityDates dates={available} max={5} />
+          </div>
+          <div className="flex items-center justify-between border-t border-gray-100 pt-4">
+            <div>
+              <p className="text-xs text-gray-500">{t("common.pricePerPerson")}</p>
+              <p className="price-tag">{t("home.from")} {d.price}</p>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setSelectedDetail(d)} className="px-4 py-2.5 border-2 border-blue-700 text-blue-700 hover:bg-blue-50 text-xs font-bold rounded-xl transition-colors">
+                {t("home.viewDetails")}
+              </button>
+              <button onClick={() => openBooking(name, d.price)} className="px-4 py-2.5 btn-gold text-xs font-bold rounded-xl">
+                {t("pages.hoteli.book")}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const baseList = tab === "srbija" ? srbija : inostranstvo;
   const list = countryFilter && tab === "inostranstvo"
     ? baseList.filter(d => (COUNTRY_KEYWORDS[countryFilter] || [countryFilter]).some(kw => d.name.toLowerCase().includes(kw.toLowerCase())))
@@ -176,19 +241,19 @@ export default function LetovanjaPage() {
         <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1600&q=80" alt="Beach" className="w-full h-full object-cover"/>
         <div className="absolute inset-0 bg-blue-900/60"/>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white pt-20">
-          <p className="text-yellow-400 font-semibold uppercase tracking-widest text-sm mb-2">Leto 2025</p>
-          <h1 className="font-serif text-5xl font-bold text-white mb-3">Letovanja</h1>
-          <p className="text-blue-100 text-lg">Odaberite savršenu destinaciju za vaše leto</p>
+          <p className="text-yellow-400 font-semibold uppercase tracking-widest text-sm mb-2">{t("pages.letovanja.heroTag")}</p>
+          <h1 className="font-serif text-5xl font-bold text-white mb-3">{t("pages.letovanja.heroTitle")}</h1>
+          <p className="text-blue-100 text-lg">{t("pages.letovanja.heroSub")}</p>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="sticky top-20 z-30 bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4 flex items-center gap-0">
-          {(["inostranstvo", "srbija"] as const).map(t => (
-            <button key={t} onClick={() => { setTab(t); setCountryFilter(""); }}
-              className={`px-8 py-4 font-semibold text-sm transition-all border-b-2 ${tab === t ? "border-yellow-500 text-yellow-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
-              {t === "srbija" ? "🇷🇸 Letovanje u Srbiji" : "✈️ Inostranstvo"}
+          {(["inostranstvo", "srbija"] as const).map((tabKey) => (
+            <button key={tabKey} onClick={() => { setTab(tabKey); setCountryFilter(""); }}
+              className={`px-8 py-4 font-semibold text-sm transition-all border-b-2 ${tab === tabKey ? "border-yellow-500 text-yellow-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
+              {tabKey === "srbija" ? t("pages.letovanja.tabSerbia") : t("pages.letovanja.tabAbroad")}
             </button>
           ))}
           {countryFilter && (
@@ -206,57 +271,15 @@ export default function LetovanjaPage() {
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-5 mb-10 flex gap-4 items-start">
             <span className="text-2xl">✈️</span>
             <div>
-              <p className="font-bold text-yellow-800">Charter letovi iz Beograda i Niša</p>
-              <p className="text-yellow-700 text-sm mt-1">Svi inostrani aranžmani uključuju direktne charter letove. Polasci iz Beograda (BEG) ili Niša (INI). Moguć i polazak autobusom po povoljnijoj ceni.</p>
+              <p className="font-bold text-yellow-800">{t("pages.letovanja.charterTitle")}</p>
+              <p className="text-yellow-700 text-sm mt-1">{t("pages.letovanja.charterBody")}</p>
             </div>
           </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {list.map((d) => (
-            <div key={d.name} className="bg-white rounded-3xl shadow-lg overflow-hidden card-hover border border-gray-100">
-              <div className="relative h-64 overflow-hidden">
-                <img src={d.img} alt={d.name} className="w-full h-full object-cover"/>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"/>
-                <div className="absolute top-4 left-4 flex gap-2 flex-wrap">
-                  <span className="badge-gold">{d.badge}</span>
-                  <AvailabilityBadge dates={d.available} size="sm" />
-                </div>
-                <div className="absolute top-4 right-4 bg-white/90 rounded-full px-3 py-1 text-sm font-bold text-yellow-600">
-                  {"⭐".repeat(d.stars)}
-                </div>
-                <div className="absolute bottom-4 left-4 right-4">
-                  <h3 className="font-serif font-bold text-xl text-white">{d.name}</h3>
-                  <p className="text-white/80 text-sm">{d.nights}</p>
-                </div>
-              </div>
-              <div className="p-6">
-                <p className="text-gray-600 text-sm leading-relaxed mb-4">{d.desc}</p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {d.includes.map(i => (
-                    <span key={i} className="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium">✓ {i}</span>
-                  ))}
-                </div>
-                <div className="mb-5">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Slobodni termini:</p>
-                  <AvailabilityDates dates={d.available} max={5} />
-                </div>
-                <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                  <div>
-                    <p className="text-xs text-gray-500">Cena po osobi</p>
-                    <p className="price-tag">od {d.price}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => setSelectedDetail(d)} className="px-4 py-2.5 border-2 border-blue-700 text-blue-700 hover:bg-blue-50 text-xs font-bold rounded-xl transition-colors">
-                      Detaljnije →
-                    </button>
-                    <button onClick={() => openBooking(d.name, d.price)} className="px-4 py-2.5 btn-gold text-xs font-bold rounded-xl">
-                      Rezervišite
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <DestCard key={d.name} d={d} />
           ))}
         </div>
       </div>

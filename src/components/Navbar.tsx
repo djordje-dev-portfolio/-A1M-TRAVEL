@@ -1,7 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Navbar() {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -29,12 +32,15 @@ export default function Navbar() {
     setAboutOpen(false);
   }, [location]);
 
-  const aboutItems = [
-    { label: "Letovanja", href: "/letovanja", icon: "🏖️" },
-    { label: "Zimovanja", href: "/zimovanja", icon: "⛷️" },
-    { label: "Jednodnevni Izleti", href: "/izleti", icon: "🚌" },
-    { label: "O Nama", href: "/o-nama", icon: "ℹ️" },
-  ];
+  const aboutItems = useMemo(
+    () => [
+      { label: t("nav.letovanja"), href: "/letovanja", icon: "🏖️" },
+      { label: t("nav.zimovanja"), href: "/zimovanja", icon: "⛷️" },
+      { label: t("nav.izleti"), href: "/izleti", icon: "🚌" },
+      { label: t("nav.oNama"), href: "/o-nama", icon: "ℹ️" },
+    ],
+    [t]
+  );
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled || mobileOpen ? "bg-white shadow-lg" : "bg-white/10 backdrop-blur-sm"}`}>
@@ -66,7 +72,7 @@ export default function Navbar() {
                 A1M <span className="text-yellow-400">Travel</span>
               </span>
               <span className={`text-xs tracking-widest uppercase font-medium ${scrolled || mobileOpen ? "text-gray-500" : "text-white/70"}`}>
-                Turistička Agencija
+                {t("nav.agency")}
               </span>
             </div>
           </Link>
@@ -74,7 +80,7 @@ export default function Navbar() {
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
             <Link href="/" className={`px-4 py-2 rounded-full text-sm font-semibold transition-all hover:bg-yellow-400/20 ${scrolled ? "text-gray-700 hover:text-yellow-600" : "text-white hover:text-yellow-300"}`}>
-              Home
+              {t("nav.home")}
             </Link>
 
             {/* About Dropdown */}
@@ -83,7 +89,7 @@ export default function Navbar() {
                 onClick={() => setAboutOpen(!aboutOpen)}
                 className={`px-4 py-2 rounded-full text-sm font-semibold transition-all hover:bg-yellow-400/20 flex items-center gap-1 ${scrolled ? "text-gray-700 hover:text-yellow-600" : "text-white hover:text-yellow-300"}`}
               >
-                About
+                {t("nav.about")}
                 <svg className={`w-4 h-4 transition-transform ${aboutOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/>
                 </svg>
@@ -104,11 +110,13 @@ export default function Navbar() {
             </div>
 
             <Link href="/hoteli" className={`px-4 py-2 rounded-full text-sm font-semibold transition-all hover:bg-yellow-400/20 ${scrolled ? "text-gray-700 hover:text-yellow-600" : "text-white hover:text-yellow-300"}`}>
-              Hotels of Exclusive Destinations
+              {t("nav.hotels")}
             </Link>
 
+            <LanguageSwitcher scrolled={scrolled} />
+
             <Link href="/letovanja" className="ml-2 px-6 py-2.5 btn-gold text-sm">
-              Rezerviši
+              {t("nav.book")}
             </Link>
           </nav>
 
@@ -126,18 +134,19 @@ export default function Navbar() {
         {/* Mobile Menu */}
         {mobileOpen && (
           <div className="md:hidden pb-6 pt-2 border-t border-gray-100">
-            <Link href="/" className="block px-4 py-3 font-semibold text-gray-700 hover:text-yellow-600">Home</Link>
-            <div className="px-4 py-2 font-semibold text-gray-500 text-xs uppercase tracking-wider mt-2">About</div>
+            <Link href="/" className="block px-4 py-3 font-semibold text-gray-700 hover:text-yellow-600">{t("nav.home")}</Link>
+            <div className="px-4 py-2 font-semibold text-gray-500 text-xs uppercase tracking-wider mt-2">{t("nav.about")}</div>
             {aboutItems.map((item) => (
               <Link key={item.href} href={item.href} className="flex items-center gap-3 px-6 py-2.5 text-gray-700 hover:text-blue-700 font-medium text-sm">
                 <span>{item.icon}</span>{item.label}
               </Link>
             ))}
             <Link href="/hoteli" className="block px-4 py-3 font-semibold text-gray-700 hover:text-yellow-600 border-t border-gray-100 mt-2">
-              Hotels of Exclusive Destinations
+              {t("nav.hotels")}
             </Link>
+            <LanguageSwitcher scrolled mobile />
             <div className="px-4 mt-3">
-              <Link href="/letovanja" className="block text-center px-6 py-3 btn-gold text-sm">Rezerviši Aranžman</Link>
+              <Link href="/letovanja" className="block text-center px-6 py-3 btn-gold text-sm">{t("nav.bookMobile")}</Link>
             </div>
           </div>
         )}

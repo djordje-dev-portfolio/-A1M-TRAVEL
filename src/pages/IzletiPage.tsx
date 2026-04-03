@@ -1,9 +1,13 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useDestLineString, useTranslatedDestination } from "@/hooks/useTranslatedDestination";
+import { formatDuration } from "@/lib/i18nFormat";
 import BookingModal from "../components/BookingModal";
 import DestinationDetailModal, { type DestinationDetail } from "../components/DestinationDetailModal";
 
 const izleti: (DestinationDetail & { img: string; badge: string; duration: string; rating: number; desc: string })[] = [
   {
+    destId: "izlet-frushka",
     name: "Manastiri Fruškogorski",
     img: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
     gallery: [
@@ -22,6 +26,7 @@ const izleti: (DestinationDetail & { img: string; badge: string; duration: strin
     available: ["Svake subote", "Svake nedelje", "Prazničnim danima"],
   },
   {
+    destId: "izlet-djavolja",
     name: "Đavolja Varoš i Prolom Banja",
     img: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80"],
@@ -38,6 +43,7 @@ const izleti: (DestinationDetail & { img: string; badge: string; duration: strin
     available: ["Svake subote", "Prazničnim danima", "Po dogovoru za grupe"],
   },
   {
+    destId: "izlet-nis",
     name: "Niš — Medijana i Niška Tvrđava",
     img: "https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1524813686514-a57563d77965?w=600&q=80"],
@@ -53,6 +59,7 @@ const izleti: (DestinationDetail & { img: string; badge: string; duration: strin
     available: ["Svake nedelje", "Prvom subotom u mesecu", "Po dogovoru za grupe"],
   },
   {
+    destId: "izlet-bg",
     name: "Beograd City Break",
     img: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&q=80"],
@@ -68,6 +75,7 @@ const izleti: (DestinationDetail & { img: string; badge: string; duration: strin
     available: ["Svake subote", "Svake nedelje", "Državnim praznicima"],
   },
   {
+    destId: "izlet-tara",
     name: "Tara i Drinska Klisura — Rafting",
     img: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1448375240586-882707db888b?w=600&q=80"],
@@ -85,8 +93,66 @@ const izleti: (DestinationDetail & { img: string; badge: string; duration: strin
 ];
 
 export default function IzletiPage() {
+  const { t, i18n } = useTranslation();
   const [modal, setModal] = useState<{ open: boolean; name: string; price: string }>({ open: false, name: "", price: "" });
   const [selectedDetail, setSelectedDetail] = useState<DestinationDetail | null>(null);
+
+  function IzletCard({ iz }: { iz: (typeof izleti)[number] }) {
+    const desc = useDestLineString(iz.destId, "desc", iz.desc);
+    const { field, arrField } = useTranslatedDestination(iz);
+    const name = field("name");
+    const badge = field("badge");
+    const includes = arrField("includes");
+    const available = arrField("available");
+    return (
+      <div className="bg-white rounded-3xl shadow-lg overflow-hidden card-hover border border-gray-100">
+        <div className="relative h-52 overflow-hidden">
+          <img src={iz.img} alt={name} className="w-full h-full object-cover"/>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"/>
+          <div className="absolute top-3 left-3">
+            <span className="bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full">{badge}</span>
+          </div>
+          <div className="absolute top-3 right-3 bg-white/90 rounded-full px-2 py-0.5 text-xs font-bold text-yellow-600">
+            ⭐ {iz.rating}
+          </div>
+          <div className="absolute bottom-3 left-3 right-3">
+            <h3 className="font-serif font-bold text-lg text-white leading-tight">{name}</h3>
+            <p className="text-white/70 text-xs">⏱️ {formatDuration(iz.duration, t, i18n.language)}</p>
+          </div>
+        </div>
+        <div className="p-5">
+          <p className="text-gray-600 text-sm leading-relaxed mb-4">{desc}</p>
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {includes.slice(0, 4).map(i => (
+              <span key={i} className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">✓ {i}</span>
+            ))}
+          </div>
+          <div className="mb-4">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">{t("common.departures")}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {available.map(dt => (
+                <span key={dt} className="text-xs bg-green-50 text-green-700 border border-green-200 px-2.5 py-1 rounded-full font-semibold">📅 {dt}</span>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center justify-between border-t border-gray-100 pt-4">
+            <div>
+              <p className="text-xs text-gray-500">{t("pages.izleti.priceLabel")}</p>
+              <p className="price-tag">{t("home.from")} {iz.price}</p>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setSelectedDetail(iz)} className="px-3 py-2 border-2 border-emerald-700 text-emerald-700 hover:bg-emerald-50 text-xs font-bold rounded-xl transition-colors">
+                {t("pages.izleti.details")}
+              </button>
+              <button onClick={() => setModal({ open: true, name, price: iz.price })} className="px-3 py-2 btn-gold text-xs font-bold rounded-xl">
+                {t("pages.izleti.signUp")}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -95,71 +161,26 @@ export default function IzletiPage() {
         <img src="https://images.unsplash.com/photo-1485470733090-0aae1788d5af?w=1600&q=80" alt="Travel" className="w-full h-full object-cover"/>
         <div className="absolute inset-0 bg-emerald-900/65"/>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white pt-20">
-          <p className="text-yellow-400 font-semibold uppercase tracking-widest text-sm mb-2">Svaki vikend</p>
-          <h1 className="font-serif text-5xl font-bold text-white mb-3">Izleti</h1>
-          <p className="text-emerald-100 text-lg">Otkrij skrivene bisere Srbije i regiona</p>
+          <p className="text-yellow-400 font-semibold uppercase tracking-widest text-sm mb-2">{t("pages.izleti.heroTag")}</p>
+          <h1 className="font-serif text-5xl font-bold text-white mb-3">{t("pages.izleti.heroTitle")}</h1>
+          <p className="text-emerald-100 text-lg">{t("pages.izleti.heroSub")}</p>
         </div>
       </div>
 
       {/* Info bar */}
       <div className="bg-emerald-800 text-white py-3">
         <div className="max-w-7xl mx-auto px-4 flex gap-8 text-sm flex-wrap justify-center">
-          <span>🚌 <strong>Polasci</strong> svake subote i nedelje</span>
-          <span>🎯 <strong>Stručni vodiči</strong> za svaki izlet</span>
-          <span>🍽️ <strong>Ručak</strong> uključen u cenu</span>
-          <span>✅ <strong>Osiguranje</strong> putnika uvek</span>
+          <span>🚌 {t("pages.izleti.info1")}</span>
+          <span>🎯 {t("pages.izleti.info2")}</span>
+          <span>🍽️ {t("pages.izleti.info3")}</span>
+          <span>✅ {t("pages.izleti.info4")}</span>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {izleti.map((iz) => (
-            <div key={iz.name} className="bg-white rounded-3xl shadow-lg overflow-hidden card-hover border border-gray-100">
-              <div className="relative h-52 overflow-hidden">
-                <img src={iz.img} alt={iz.name} className="w-full h-full object-cover"/>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"/>
-                <div className="absolute top-3 left-3">
-                  <span className="bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full">{iz.badge}</span>
-                </div>
-                <div className="absolute top-3 right-3 bg-white/90 rounded-full px-2 py-0.5 text-xs font-bold text-yellow-600">
-                  ⭐ {iz.rating}
-                </div>
-                <div className="absolute bottom-3 left-3 right-3">
-                  <h3 className="font-serif font-bold text-lg text-white leading-tight">{iz.name}</h3>
-                  <p className="text-white/70 text-xs">⏱️ {iz.duration}</p>
-                </div>
-              </div>
-              <div className="p-5">
-                <p className="text-gray-600 text-sm leading-relaxed mb-4">{iz.desc}</p>
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {iz.includes.slice(0, 4).map(i => (
-                    <span key={i} className="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">✓ {i}</span>
-                  ))}
-                </div>
-                <div className="mb-4">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Polasci:</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {iz.available.map(dt => (
-                      <span key={dt} className="text-xs bg-green-50 text-green-700 border border-green-200 px-2.5 py-1 rounded-full font-semibold">📅 {dt}</span>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                  <div>
-                    <p className="text-xs text-gray-500">Cena po osobi</p>
-                    <p className="price-tag">od {iz.price}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => setSelectedDetail(iz)} className="px-3 py-2 border-2 border-emerald-700 text-emerald-700 hover:bg-emerald-50 text-xs font-bold rounded-xl transition-colors">
-                      Detaljnije →
-                    </button>
-                    <button onClick={() => setModal({ open: true, name: iz.name, price: iz.price })} className="px-3 py-2 btn-gold text-xs font-bold rounded-xl">
-                      Prijavi se
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <IzletCard key={iz.name} iz={iz} />
           ))}
         </div>
       </div>

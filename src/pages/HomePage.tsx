@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "wouter";
 import BookingModal from "../components/BookingModal";
 import DestinationDetailModal, { type DestinationDetail } from "../components/DestinationDetailModal";
 import { getDestinations } from "../lib/api";
 import { ALL_LOCAL, parsePrice as parsePriceLocal } from "../lib/localDestinations";
+import { useDestLineString, useTranslatedDestination } from "../hooks/useTranslatedDestination";
+import { formatNights } from "../lib/i18nFormat";
 
-const TRAVEL_TEXT = "TRAVEL ";
-const WITH_US_TEXT = "WITH US";
-const FULL_TEXT = TRAVEL_TEXT + WITH_US_TEXT;
-
-const featuredDest: (DestinationDetail & { img: string; badge: string; rating: number })[] = [
+const featuredDest: (DestinationDetail & { img: string; badge: string; rating: number; destId?: string })[] = [
   {
+    destId: "leto-grcka-krf",
     name: "Grčka — Krf, Hotel Dassia Beach",
     img: "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=600&q=80",
     gallery: [
@@ -30,6 +30,7 @@ const featuredDest: (DestinationDetail & { img: string; badge: string; rating: n
     available: ["Jun 8–15", "Jun 22–29", "Jul 6–13", "Jul 20–27", "Aug 3–10"],
   },
   {
+    destId: "leto-turska-ant",
     name: "Turska — Antalija, Club Hotel",
     img: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=600&q=80",
     gallery: [
@@ -49,6 +50,7 @@ const featuredDest: (DestinationDetail & { img: string; badge: string; rating: n
     available: ["Jun 1–8", "Jun 15–22", "Jul 1–8", "Jul 15–22", "Aug 1–8", "Aug 15–22"],
   },
   {
+    destId: "leto-egipat-hur",
     name: "Egipat — Hurgada, Arabela Resort",
     img: "https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=600&q=80",
     gallery: [
@@ -85,59 +87,6 @@ const featuredDest: (DestinationDetail & { img: string; badge: string; rating: n
   },
 ];
 
-const stats = [
-  { value: "15+", label: "Godina iskustva" },
-  { value: "50.000+", label: "Zadovoljnih putnika" },
-  { value: "80+", label: "Destinacija" },
-  { value: "24/7", label: "Podrška" },
-];
-
-const why = [
-  { icon: "🏅", title: "Garantovana Cena", desc: "Pronađi jeftinije — mi vraćamo razliku. Garantujemo najniže cene na tržištu." },
-  { icon: "🛡️", title: "Sigurno Putovanje", desc: "Svi aranžmani su osigurani i u skladu sa zakonskim propisima RS." },
-  { icon: "🤝", title: "Lična Podrška", desc: "Vaš lični agent dostupan 24/7 tokom celog putovanja." },
-  { icon: "✈️", title: "Charter Letovi", desc: "Direktni letovi iz Beograda, Niša i Loznice bez presedanja." },
-];
-
-const LOCATIONS_BY_TYPE: Record<string, { value: string; label: string }[]> = {
-  letovanje: [
-    { value: "Grčka", label: "🇬🇷 Grčka" },
-    { value: "Turska", label: "🇹🇷 Turska" },
-    { value: "Egipat", label: "🇪🇬 Egipat" },
-    { value: "Španija", label: "🇪🇸 Španija" },
-    { value: "Srbija", label: "🇷🇸 Srbija" },
-  ],
-  zimovanje: [
-    { value: "Srbija", label: "🇷🇸 Srbija" },
-    { value: "Austrija", label: "🇦🇹 Austrija" },
-    { value: "Italija", label: "🇮🇹 Italija" },
-    { value: "Švajcarska", label: "🇨🇭 Švajcarska" },
-    { value: "Slovenija", label: "🇸🇮 Slovenija" },
-  ],
-  izlet: [
-    { value: "Srbija", label: "🇷🇸 Srbija" },
-  ],
-  hotel: [
-    { value: "Grčka", label: "🇬🇷 Grčka" },
-    { value: "Međunarodni", label: "🌍 Međunarodni" },
-  ],
-};
-
-const TYPE_LABELS: Record<string, string> = {
-  letovanje: "🏖️ Letovanje",
-  zimovanje: "⛷️ Zimovanje",
-  izlet: "🚌 Izlet",
-  hotel: "🏨 Hotel",
-};
-
-const PRICE_RANGES = [
-  { value: "", label: "💰 Sve cene" },
-  { value: "0-200", label: "Do 200€  (izleti, domaća)" },
-  { value: "200-400", label: "200€ – 400€  (standard)" },
-  { value: "400-800", label: "400€ – 800€  (premium)" },
-  { value: "800-999999", label: "Iznad 800€  (luxury)" },
-];
-
 interface SearchResult {
   id?: number;
   name: string;
@@ -150,7 +99,123 @@ interface SearchResult {
   country: string;
   destinationType: string;
   description?: string;
-  detail?: DestinationDetail & { img: string; badge: string; rating: number };
+  detail?: DestinationDetail & { img: string; badge: string; rating: number; destId?: string };
+}
+
+function SearchResultCard({
+  result,
+  onOpenDetail,
+  onBook,
+  viewDetailsLabel,
+  reserveLabel,
+}: {
+  result: SearchResult;
+  onOpenDetail: () => void;
+  onBook: (name: string, price: string) => void;
+  viewDetailsLabel: string;
+  reserveLabel: string;
+}) {
+  const { t, i18n } = useTranslation();
+  const detail = result.detail;
+  const { field } = useTranslatedDestination(detail ?? null);
+  const desc = useDestLineString(detail?.destId, "desc", result.description || "");
+  const name = detail ? field("name") : result.name;
+  const badge = detail ? field("badge") : result.badge;
+  const country = detail ? field("country") : result.country;
+  const nights = formatNights(result.nights, t, i18n.language);
+  const line = [nights, country].filter(Boolean).join(" · ");
+
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-gray-100">
+      <div
+        className="relative h-48 overflow-hidden cursor-pointer"
+        onClick={() => detail && onOpenDetail()}
+      >
+        <img src={result.img} alt={name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+        <div className="absolute top-3 left-3">
+          <span className="badge-gold">{badge}</span>
+        </div>
+        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-bold text-yellow-600">
+          ⭐ {result.rating}
+        </div>
+        {detail && (
+          <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center">
+            <span className="opacity-0 hover:opacity-100 transition-opacity bg-white/90 text-blue-700 font-bold text-xs px-3 py-1.5 rounded-full">
+              {viewDetailsLabel}
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="p-4">
+        <p className="text-xs text-blue-500 font-semibold mb-1 uppercase tracking-wide">{line}</p>
+        <h3
+          className={`font-bold text-gray-900 text-sm leading-tight ${detail ? "cursor-pointer hover:text-blue-700 transition-colors" : ""}`}
+          onClick={() => detail && onOpenDetail()}
+        >
+          {name}
+        </h3>
+        {desc && (
+          <p className="text-gray-400 text-xs mt-1.5 line-clamp-2">{desc}</p>
+        )}
+        <div className="flex items-center justify-between mt-3 gap-2">
+          <span className="price-tag text-lg">{t("home.from")} {result.price}</span>
+          <button
+            onClick={() => onBook(name, result.price)}
+            className="text-xs btn-ocean px-3 py-1.5 rounded-lg font-bold"
+          >
+            {reserveLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FeaturedDestCard({
+  d,
+  onDetail,
+  onBook,
+  viewDetailsLabel,
+  reserveLabel,
+  fromLabel,
+}: {
+  d: (typeof featuredDest)[number];
+  onDetail: () => void;
+  onBook: (name: string, price: string) => void;
+  viewDetailsLabel: string;
+  reserveLabel: string;
+  fromLabel: string;
+}) {
+  const { field } = useTranslatedDestination(d);
+  const name = field("name");
+  const badge = field("badge");
+  return (
+    <div className="bg-white rounded-2xl overflow-hidden shadow-md card-hover">
+      <div className="relative h-52 overflow-hidden cursor-pointer" onClick={onDetail}>
+        <img src={d.img} alt={name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
+        <div className="absolute top-3 left-3">
+          <span className="badge-gold">{badge}</span>
+        </div>
+        <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-bold text-yellow-600">
+          ⭐ {d.rating}
+        </div>
+        <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center">
+          <span className="opacity-0 hover:opacity-100 transition-opacity bg-white/90 text-blue-700 font-bold text-xs px-3 py-1.5 rounded-full">
+            {viewDetailsLabel}
+          </span>
+        </div>
+      </div>
+      <div className="p-4">
+        <h3 className="font-bold text-gray-900 text-sm leading-tight cursor-pointer hover:text-blue-700 transition-colors" onClick={onDetail}>{name}</h3>
+        <div className="flex items-center justify-between mt-3 gap-2">
+          <span className="price-tag text-lg">{fromLabel} {d.price}</span>
+          <button onClick={() => onBook(name, d.price)} className="text-xs btn-ocean px-3 py-1.5 rounded-lg font-bold">
+            {reserveLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 const reviews = [
@@ -217,6 +282,7 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 function ReviewsSection() {
+  const { t } = useTranslation();
   const [active, setActive] = useState(0);
   const total = reviews.length;
 
@@ -233,9 +299,9 @@ function ReviewsSection() {
     <section className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
-          <p className="text-yellow-500 font-semibold uppercase tracking-widest text-sm mb-2">Iskustva Putnika</p>
-          <h2 className="section-title text-4xl md:text-5xl text-gray-900">Šta Kažu Naši Gosti</h2>
-          <p className="text-gray-500 mt-3 max-w-xl mx-auto">Prava iskustva zadovoljnih putnika koji su putovanje poverili nama</p>
+          <p className="text-yellow-500 font-semibold uppercase tracking-widest text-sm mb-2">{t("home.reviewsTag")}</p>
+          <h2 className="section-title text-4xl md:text-5xl text-gray-900">{t("home.reviewsTitle")}</h2>
+          <p className="text-gray-500 mt-3 max-w-xl mx-auto">{t("home.reviewsSub")}</p>
         </div>
 
         {/* Cards */}
@@ -304,17 +370,17 @@ function ReviewsSection() {
           <div className="text-center">
             <p className="text-3xl font-black text-gray-900">4.9</p>
             <StarRating rating={5} />
-            <p className="text-xs text-gray-400 mt-1">Prosečna ocena</p>
+            <p className="text-xs text-gray-400 mt-1">{t("home.avgRating")}</p>
           </div>
           <div className="w-px h-12 bg-gray-200"/>
           <div className="text-center">
             <p className="text-3xl font-black text-gray-900">50k+</p>
-            <p className="text-xs text-gray-400 mt-1">Zadovoljnih putnika</p>
+            <p className="text-xs text-gray-400 mt-1">{t("home.happy50")}</p>
           </div>
           <div className="w-px h-12 bg-gray-200"/>
           <div className="text-center">
             <p className="text-3xl font-black text-gray-900">15+</p>
-            <p className="text-xs text-gray-400 mt-1">Godina iskustva</p>
+            <p className="text-xs text-gray-400 mt-1">{t("home.years15")}</p>
           </div>
         </div>
       </div>
@@ -323,9 +389,10 @@ function ReviewsSection() {
 }
 
 export default function HomePage() {
+  const { t, i18n } = useTranslation();
   const [modal, setModal] = useState(false);
-  const [bookingDest, setBookingDest] = useState("Destinacija po izboru");
-  const [bookingPrice, setBookingPrice] = useState("Cena po upitu");
+  const [bookingDest, setBookingDest] = useState("");
+  const [bookingPrice, setBookingPrice] = useState("");
   const [displayCount, setDisplayCount] = useState(0);
   const [started, setStarted] = useState(false);
   const [searchType, setSearchType] = useState("letovanje");
@@ -337,17 +404,89 @@ export default function HomePage() {
   const [selectedDetail, setSelectedDetail] = useState<DestinationDetail | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
+  const TRAVEL_TEXT = t("home.heroLine1");
+  const WITH_US_TEXT = t("home.heroLine2");
+  const FULL_TEXT = TRAVEL_TEXT + WITH_US_TEXT;
+
+  const typeLabels = useMemo(
+    () => ({
+      letovanje: `🏖️ ${t("home.typeLet")}`,
+      zimovanje: `⛷️ ${t("home.typeZim")}`,
+      izlet: `🚌 ${t("home.typeIzlet")}`,
+      hotel: `🏨 ${t("home.typeHotel")}`,
+    }),
+    [t]
+  );
+
+  const priceRanges = useMemo(
+    () => [
+      { value: "", label: `💰 ${t("home.priceAll")}` },
+      { value: "0-200", label: t("home.price0200") },
+      { value: "200-400", label: t("home.price200400") },
+      { value: "400-800", label: t("home.price400800") },
+      { value: "800-999999", label: t("home.price800") },
+    ],
+    [t]
+  );
+
+  const locationsByType = useMemo(
+    () => ({
+      letovanje: [
+        { value: "Grčka", label: `🇬🇷 ${t("home.locGrcka")}` },
+        { value: "Turska", label: `🇹🇷 ${t("home.locTurska")}` },
+        { value: "Egipat", label: `🇪🇬 ${t("home.locEgipat")}` },
+        { value: "Španija", label: `🇪🇸 ${t("home.locSpanija")}` },
+        { value: "Srbija", label: `🇷🇸 ${t("home.locSrbija")}` },
+      ],
+      zimovanje: [
+        { value: "Srbija", label: `🇷🇸 ${t("home.locSrbija")}` },
+        { value: "Austrija", label: `🇦🇹 ${t("home.locAustrija")}` },
+        { value: "Italija", label: `🇮🇹 ${t("home.locItalija")}` },
+        { value: "Švajcarska", label: `🇨🇭 ${t("home.locSvajcarska")}` },
+        { value: "Slovenija", label: `🇸🇮 ${t("home.locSlovenija")}` },
+      ],
+      izlet: [{ value: "Srbija", label: `🇷🇸 ${t("home.locSrbija")}` }],
+      hotel: [
+        { value: "Grčka", label: `🇬🇷 ${t("home.locGrcka")}` },
+        { value: "Međunarodni", label: `🌍 ${t("home.locMedjunarodni")}` },
+      ],
+    }),
+    [t]
+  );
+
+  const stats = useMemo(
+    () => [
+      { value: "15+", label: t("home.statYears") },
+      { value: "50.000+", label: t("home.statGuests") },
+      { value: "80+", label: t("home.statDest") },
+      { value: "24/7", label: t("home.statSupport") },
+    ],
+    [t]
+  );
+
+  const why = useMemo(
+    () => [
+      { icon: "🏅", title: t("home.why1t"), desc: t("home.why1d") },
+      { icon: "🛡️", title: t("home.why2t"), desc: t("home.why2d") },
+      { icon: "🤝", title: t("home.why3t"), desc: t("home.why3d") },
+      { icon: "✈️", title: t("home.why4t"), desc: t("home.why4d") },
+    ],
+    [t]
+  );
+
   useEffect(() => {
+    setDisplayCount(0);
+    setStarted(false);
     const delay = setTimeout(() => setStarted(true), 300);
     return () => clearTimeout(delay);
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     if (!started) return;
     if (displayCount >= FULL_TEXT.length) return;
-    const timer = setTimeout(() => setDisplayCount(c => c + 1), 85);
+    const timer = setTimeout(() => setDisplayCount((c) => c + 1), 85);
     return () => clearTimeout(timer);
-  }, [started, displayCount]);
+  }, [started, displayCount, FULL_TEXT.length]);
 
   // Reset location when type changes
   useEffect(() => { setSearchLocation(""); }, [searchType]);
@@ -361,30 +500,6 @@ export default function HomePage() {
       const min = parseInt(minStr);
       const max = parseInt(maxStr);
 
-      // Fetch from DB
-      const dbDests = await getDestinations(searchType);
-      const dbResults: SearchResult[] = dbDests
-        .filter((d: any) => {
-          const priceNum = parsePriceLocal(d.price);
-          const matchCountry = !searchLocation || (d.country || "").toLowerCase().includes(searchLocation.toLowerCase());
-          const matchPrice = !searchPrice || (priceNum >= min && priceNum <= max);
-          return matchCountry && matchPrice;
-        })
-        .map((d: any) => ({
-          id: d.id,
-          name: d.name,
-          img: d.img || "https://images.unsplash.com/photo-1506953823976-52e1fdc0149a?w=600&q=80",
-          badge: d.badge || "Ponuda",
-          rating: parseFloat(d.rating) || 4.5,
-          price: d.price,
-          priceNum: parsePriceLocal(d.price),
-          nights: d.nights || "7 noći",
-          country: d.country || "",
-          destinationType: d.type,
-          description: d.description,
-        }));
-
-      // Merge with ALL local destinations (all types: letovanje, zimovanje, hotel, izlet)
       const localPool = ALL_LOCAL[searchType] || [];
       const localResults: SearchResult[] = localPool
         .filter(d => {
@@ -393,25 +508,57 @@ export default function HomePage() {
             (d.country || "").toLowerCase().includes(searchLocation.toLowerCase()) ||
             d.name.toLowerCase().includes(searchLocation.toLowerCase());
           const matchPrice = !searchPrice || (priceNum >= min && priceNum <= max);
-          const alreadyIn = dbResults.some(r => r.name === d.name);
-          return matchCountry && matchPrice && !alreadyIn;
+          return matchCountry && matchPrice;
         })
         .map(d => ({
           name: d.name,
           img: d.img,
           badge: d.badge,
-          rating: d.rating,
+          rating: d.rating ?? 4.5,
           price: d.price,
           priceNum: parsePriceLocal(d.price),
           nights: d.nights || "7 noći",
           country: d.country || "",
           destinationType: d.destinationType || searchType,
+          description: d.desc,
           detail: d as any,
         }));
 
+      // DB results are optional (if API is down, we still show local + correct local prices)
+      let dbResults: SearchResult[] = [];
+      try {
+        const dbDests = await getDestinations(searchType);
+        const dbMapped: SearchResult[] = dbDests
+          .filter((d: any) => {
+            const priceNum = parsePriceLocal(d.price);
+            const matchCountry = !searchLocation || (d.country || "").toLowerCase().includes(searchLocation.toLowerCase());
+            const matchPrice = !searchPrice || (priceNum >= min && priceNum <= max);
+            return matchCountry && matchPrice;
+          })
+          .map((d: any) => ({
+            id: d.id,
+            name: d.name,
+            img: d.img || "https://images.unsplash.com/photo-1506953823976-52e1fdc0149a?w=600&q=80",
+            badge: d.badge || t("booking.offerBadge"),
+            rating: parseFloat(d.rating) || 4.5,
+            price: d.price,
+            priceNum: parsePriceLocal(d.price),
+            nights: d.nights || "7 noći",
+            country: d.country || "",
+            destinationType: d.type || searchType,
+            description: d.description || d.desc,
+          }));
+
+        // Local data is the source of truth (so its prices always match Letovanja/website content)
+        const localNames = new Set(localResults.map(r => r.name));
+        dbResults = dbMapped.filter(r => !localNames.has(r.name));
+      } catch {
+        dbResults = [];
+      }
+
       const combined = [...dbResults, ...localResults].sort((a, b) => a.priceNum - b.priceNum);
       setResults(combined);
-    } catch (e) {
+    } catch {
       setResults([]);
     } finally {
       setSearching(false);
@@ -424,6 +571,8 @@ export default function HomePage() {
     setBookingPrice(price);
     setModal(true);
   }
+
+  const filterSummary = `${typeLabels[searchType]}${searchLocation ? ` · ${searchLocation}` : ""}${searchPrice ? ` · ${priceRanges.find((p) => p.value === searchPrice)?.label ?? ""}` : ""}`;
 
   return (
     <div className="min-h-screen">
@@ -439,7 +588,7 @@ export default function HomePage() {
 
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto pt-24">
           <div className="inline-flex items-center gap-2 bg-yellow-400/20 backdrop-blur-sm border border-yellow-400/30 rounded-full px-5 py-2 mb-6">
-            <span className="text-yellow-300 text-sm font-semibold">✈️ Specijalne ponude za 2025.</span>
+            <span className="text-yellow-300 text-sm font-semibold">✈️ {t("home.heroBadge")}</span>
           </div>
 
           <h1 className="font-serif" style={{ fontSize: "clamp(3rem, 8vw, 5.5rem)", fontWeight: 700, lineHeight: 1.1, textShadow: "2px 4px 20px rgba(0,0,0,0.4)", minHeight: "1.1em" }}>
@@ -458,7 +607,7 @@ export default function HomePage() {
           </h1>
 
           <p className="text-white/90 text-xl md:text-2xl mt-5 mb-8 font-light max-w-2xl mx-auto" style={{ textShadow: "1px 2px 8px rgba(0,0,0,0.5)" }}>
-            Otkrijte raj na zemlji — egzotične destinacije, luksuzan smeštaj i nezaboravna iskustva.
+            {t("home.heroSub")}
           </p>
 
           {/* Search bar — 4 filters */}
@@ -469,7 +618,7 @@ export default function HomePage() {
                 onChange={e => setSearchType(e.target.value)}
                 className="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 text-sm font-medium focus:outline-none focus:border-blue-500"
               >
-                {Object.entries(TYPE_LABELS).map(([val, label]) => (
+                {Object.entries(typeLabels).map(([val, label]) => (
                   <option key={val} value={val}>{label}</option>
                 ))}
               </select>
@@ -479,8 +628,8 @@ export default function HomePage() {
                 onChange={e => setSearchLocation(e.target.value)}
                 className="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 text-sm font-medium focus:outline-none focus:border-blue-500"
               >
-                <option value="">🌍 Sva mesta</option>
-                {(LOCATIONS_BY_TYPE[searchType] || []).map(loc => (
+                <option value="">🌍 {t("home.allPlaces")}</option>
+                {(locationsByType[searchType] || []).map(loc => (
                   <option key={loc.value} value={loc.value}>{loc.label}</option>
                 ))}
               </select>
@@ -490,7 +639,7 @@ export default function HomePage() {
                 onChange={e => setSearchPrice(e.target.value)}
                 className="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-gray-700 text-sm font-medium focus:outline-none focus:border-blue-500"
               >
-                {PRICE_RANGES.map(p => (
+                {priceRanges.map(p => (
                   <option key={p.value} value={p.value}>{p.label}</option>
                 ))}
               </select>
@@ -501,19 +650,19 @@ export default function HomePage() {
                 className="btn-gold px-6 py-3 text-sm font-bold rounded-xl disabled:opacity-70 flex items-center justify-center gap-2"
               >
                 {searching ? (
-                  <><span className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"/><span>Tražim...</span></>
+                  <><span className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin"/><span>{t("home.searching")}</span></>
                 ) : (
-                  "🔍 Traži"
+                  `🔍 ${t("home.search")}`
                 )}
               </button>
             </div>
           </div>
 
-          <p className="text-white/60 text-sm mt-4">Bez naknade za rezervaciju · Besplatna promena termina · 24/7 podrška</p>
+          <p className="text-white/60 text-sm mt-4">{t("home.searchFoot")}</p>
         </div>
 
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60">
-          <span className="text-xs tracking-widest">SCROLL</span>
+          <span className="text-xs tracking-widest">{t("home.scroll")}</span>
           <div className="w-px h-10 bg-gradient-to-b from-white/60 to-transparent animate-bounce"/>
         </div>
       </section>
@@ -526,17 +675,17 @@ export default function HomePage() {
             <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
               <div>
                 <h2 className="text-2xl font-bold text-gray-900">
-                  {searching ? "Pretragujem..." : results.length === 0 ? "Nema rezultata" : `${results.length} ${results.length === 1 ? "destinacija pronađena" : results.length < 5 ? "destinacije pronađene" : "destinacija pronađeno"}`}
+                  {searching ? t("home.resultsSearching") : results.length === 0 ? t("home.resultsNone") : t("home.resultsCount", { count: results.length })}
                 </h2>
                 <p className="text-gray-400 text-sm mt-1">
-                  {TYPE_LABELS[searchType]}{searchLocation ? ` · ${searchLocation}` : ""}{searchPrice ? ` · ${PRICE_RANGES.find(p => p.value === searchPrice)?.label}` : ""}
+                  {filterSummary}
                 </p>
               </div>
               <button
                 onClick={() => { setHasSearched(false); setResults([]); }}
                 className="text-sm text-gray-400 hover:text-gray-600 border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
               >
-                ✕ Zatvori pretragu
+                ✕ {t("home.closeSearch")}
               </button>
             </div>
 
@@ -549,57 +698,23 @@ export default function HomePage() {
             ) : results.length === 0 ? (
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">🔍</div>
-                <p className="text-gray-500 text-lg mb-2">Nismo pronašli destinacije za vaše kriterijume.</p>
-                <p className="text-gray-400 text-sm">Pokušajte sa drugačijim filterima ili nas kontaktirajte direktno.</p>
-                <button onClick={() => openBooking("Destinacija po izboru", "Cena po upitu")} className="mt-6 btn-ocean px-6 py-2.5 text-sm font-bold rounded-xl">
-                  Kontaktirajte nas
+                <p className="text-gray-500 text-lg mb-2">{t("home.noResults")}</p>
+                <p className="text-gray-400 text-sm">{t("home.noResultsHint")}</p>
+                <button onClick={() => openBooking(t("booking.placeholderDest"), t("booking.placeholderPrice"))} className="mt-6 btn-ocean px-6 py-2.5 text-sm font-bold rounded-xl">
+                  {t("home.contactUs")}
                 </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {results.map((d, i) => (
-                  <div key={d.id ?? d.name + i} className="bg-white rounded-2xl overflow-hidden shadow-md card-hover border border-gray-100">
-                    <div
-                      className="relative h-48 overflow-hidden cursor-pointer"
-                      onClick={() => d.detail ? setSelectedDetail(d.detail) : undefined}
-                    >
-                      <img src={d.img} alt={d.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
-                      <div className="absolute top-3 left-3">
-                        <span className="badge-gold">{d.badge}</span>
-                      </div>
-                      <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-bold text-yellow-600">
-                        ⭐ {d.rating}
-                      </div>
-                      {d.detail && (
-                        <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center">
-                          <span className="opacity-0 hover:opacity-100 transition-opacity bg-white/90 text-blue-700 font-bold text-xs px-3 py-1.5 rounded-full">
-                            Pogledaj detaljnije
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <p className="text-xs text-blue-500 font-semibold mb-1 uppercase tracking-wide">{d.nights}{d.country ? ` · ${d.country}` : ""}</p>
-                      <h3
-                        className={`font-bold text-gray-900 text-sm leading-tight ${d.detail ? "cursor-pointer hover:text-blue-700 transition-colors" : ""}`}
-                        onClick={() => d.detail ? setSelectedDetail(d.detail) : undefined}
-                      >
-                        {d.name}
-                      </h3>
-                      {d.description && (
-                        <p className="text-gray-400 text-xs mt-1.5 line-clamp-2">{d.description}</p>
-                      )}
-                      <div className="flex items-center justify-between mt-3 gap-2">
-                        <span className="price-tag text-lg">od {d.price}</span>
-                        <button
-                          onClick={() => openBooking(d.name, d.price)}
-                          className="text-xs btn-ocean px-3 py-1.5 rounded-lg font-bold"
-                        >
-                          Rezerviši
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  <SearchResultCard
+                    key={d.id ?? d.name + i}
+                    result={d}
+                    onOpenDetail={() => d.detail && setSelectedDetail(d.detail)}
+                    onBook={(name, price) => openBooking(name, price)}
+                    viewDetailsLabel={t("home.viewDetails")}
+                    reserveLabel={t("home.reserve")}
+                  />
                 ))}
               </div>
             )}
@@ -623,44 +738,28 @@ export default function HomePage() {
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-yellow-500 font-semibold uppercase tracking-widest text-sm mb-2">Posebne Ponude</p>
-            <h2 className="section-title text-4xl md:text-5xl text-gray-900">Popularne Destinacije</h2>
-            <p className="text-gray-500 mt-3 max-w-xl mx-auto">Pažljivo odabrani aranžmani za nezaboravno iskustvo</p>
+            <p className="text-yellow-500 font-semibold uppercase tracking-widest text-sm mb-2">{t("home.featuredTag")}</p>
+            <h2 className="section-title text-4xl md:text-5xl text-gray-900">{t("home.featuredTitle")}</h2>
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto">{t("home.featuredSub")}</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredDest.map((d) => (
-              <div key={d.name} className="bg-white rounded-2xl overflow-hidden shadow-md card-hover">
-                <div className="relative h-52 overflow-hidden cursor-pointer" onClick={() => setSelectedDetail(d)}>
-                  <img src={d.img} alt={d.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"/>
-                  <div className="absolute top-3 left-3">
-                    <span className="badge-gold">{d.badge}</span>
-                  </div>
-                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-bold text-yellow-600">
-                    ⭐ {d.rating}
-                  </div>
-                  <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors flex items-center justify-center">
-                    <span className="opacity-0 hover:opacity-100 transition-opacity bg-white/90 text-blue-700 font-bold text-xs px-3 py-1.5 rounded-full">
-                      Pogledaj detaljnije
-                    </span>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-gray-900 text-sm leading-tight cursor-pointer hover:text-blue-700 transition-colors" onClick={() => setSelectedDetail(d)}>{d.name}</h3>
-                  <div className="flex items-center justify-between mt-3 gap-2">
-                    <span className="price-tag text-lg">od {d.price}</span>
-                    <button onClick={() => openBooking(d.name, d.price)} className="text-xs btn-ocean px-3 py-1.5 rounded-lg font-bold">
-                      Rezerviši
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <FeaturedDestCard
+                key={d.name}
+                d={d}
+                onDetail={() => setSelectedDetail(d)}
+                onBook={(name, price) => openBooking(name, price)}
+                viewDetailsLabel={t("home.viewDetails")}
+                reserveLabel={t("home.reserve")}
+                fromLabel={t("home.from")}
+              />
             ))}
           </div>
 
           <div className="text-center mt-10">
             <Link href="/letovanja" className="inline-block px-8 py-3.5 btn-ocean text-sm font-bold">
-              Pogledajte Sve Destinacije →
+              {t("home.seeAll")}
             </Link>
           </div>
         </div>
@@ -670,8 +769,8 @@ export default function HomePage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-yellow-500 font-semibold uppercase tracking-widest text-sm mb-2">Zašto A1M Travel</p>
-            <h2 className="section-title text-4xl text-gray-900">Vaše Putovanje, Naša Misija</h2>
+            <p className="text-yellow-500 font-semibold uppercase tracking-widest text-sm mb-2">{t("home.whyTag")}</p>
+            <h2 className="section-title text-4xl text-gray-900">{t("home.whyTitle")}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {why.map((w) => (
@@ -693,10 +792,10 @@ export default function HomePage() {
         <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=80" alt="Sea" className="absolute inset-0 w-full h-full object-cover"/>
         <div className="absolute inset-0 bg-blue-900/75"/>
         <div className="relative z-10 max-w-3xl mx-auto text-center px-4">
-          <h2 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">Planirajte Putovanje Iz Snova</h2>
-          <p className="text-blue-200 text-lg mb-8">Specijalni popusti do 30% za rane rezervacije. Ograničen broj mesta!</p>
-          <button onClick={() => openBooking("Destinacija po izboru", "Cena po upitu")} className="px-10 py-4 btn-gold text-base font-bold inline-block">
-            🌴 Rezervišite Odmah
+          <h2 className="font-serif text-4xl md:text-5xl font-bold text-white mb-4">{t("home.ctaTitle")}</h2>
+          <p className="text-blue-200 text-lg mb-8">{t("home.ctaSub")}</p>
+          <button onClick={() => openBooking(t("booking.placeholderDest"), t("booking.placeholderPrice"))} className="px-10 py-4 btn-gold text-base font-bold inline-block">
+            🌴 {t("home.ctaBtn")}
           </button>
         </div>
       </section>

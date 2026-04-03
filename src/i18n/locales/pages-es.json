@@ -1,0 +1,81 @@
+{
+  "pages": {
+    "letovanja": {
+      "heroTag": "Verano 2026",
+      "heroTitle": "Vacaciones de verano",
+      "heroSub": "Elige el destino perfecto para tu verano",
+      "tabAbroad": "✈️ Extranjero",
+      "tabSerbia": "🇷🇸 Verano en Serbia",
+      "charterTitle": "Vuelos chárter desde Belgrado y Niš",
+      "charterBody": "Todos los paquetes internacionales incluyen vuelos chárter directos. Salidas desde Belgrado (BEG) o Niš (INI). También hay salida en autobús a mejor precio.",
+      "slobodni": "Fechas disponibles:"
+    },
+    "zimovanja": {
+      "heroTag": "Temporada 2025/2026",
+      "heroTitle": "Esquí y invierno",
+      "heroSub": "Esquí, adrenalina y magia invernal en las mejores estaciones",
+      "info1": "Forfait incluido",
+      "info2": "Alquiler de equipo in situ",
+      "info3": "Escuela de esquí para todas las edades",
+      "info4": "Salidas desde Loznica y Belgrado",
+      "tabSerbia": "🇷🇸 Esquí en Serbia",
+      "tabAbroad": "✈️ Extranjero",
+      "bannerAbroadTitle": "Vuelos y autobuses desde Serbia",
+      "bannerAbroadBody": "Para Eslovenia y destinos cercanos — autobús cómodo desde Loznica y Belgrado. Para Austria, Italia y Suiza — vuelo desde Belgrado incluido.",
+      "bannerSrbTitle": "Salidas en autobús — sin vuelo",
+      "bannerSrbBody": "Todos los paquetes en Serbia incluyen autobús cómodo desde Loznica y Belgrado. Todo incluido en el precio.",
+      "termini": "Fechas:"
+    },
+    "izleti": {
+      "heroTag": "Cada fin de semana",
+      "heroTitle": "Excursiones de un día",
+      "heroSub": "Descubre joyas ocultas de Serbia y la región",
+      "info1": "Salidas cada sábado y domingo",
+      "info2": "Guías expertos",
+      "info3": "Almuerzo incluido",
+      "info4": "Seguro de viaje incluido",
+      "priceLabel": "Precio por persona",
+      "details": "Más detalles →",
+      "signUp": "Inscribirse"
+    },
+    "hoteli": {
+      "heroTag": "Alojamiento exclusivo",
+      "heroTitle": "Hoteles del mundo",
+      "heroSub": "Una selección de las mejores experiencias hoteleras",
+      "info1": "Ganadores World Travel Awards",
+      "info2": "Conserjería 24/7",
+      "info3": "Transfer VIP a la llegada",
+      "shown": "Filtrado por:",
+      "viewDetails": "Ver detalles →",
+      "book": "Reservar"
+    }
+  },
+  "detail": {
+    "pricePerPerson": "Precio por persona",
+    "book": "Reservar →",
+    "bookNow": "Reservar ahora",
+    "aboutDest": "Sobre el destino",
+    "stay": "Alojamiento",
+    "rooms": "Habitaciones:",
+    "facilities": "Instalaciones del hotel",
+    "included": "Incluido en el precio",
+    "dates": "Fechas disponibles",
+    "agencyTip": "Consejo de la agencia",
+    "close": "Cerrar",
+    "beach": "Playa:"
+  },
+  "common": {
+    "pricePerPerson": "Precio por persona",
+    "perNight": "por noche / pers.",
+    "freeTerms": "Fechas disponibles:",
+    "departures": "Salidas:",
+    "termini": "Fechas:",
+    "more": "+{{count}} más",
+    "shownFor": "Filtrado por:",
+    "facilitiesMore": "+{{count}} más →"
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "text": "La página que buscas no existe o ha sido movida."
+  }
+}

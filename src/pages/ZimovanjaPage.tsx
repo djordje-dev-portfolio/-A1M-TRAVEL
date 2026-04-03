@@ -1,15 +1,20 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { useDestLineString, useTranslatedDestination } from "@/hooks/useTranslatedDestination";
+import { formatNights } from "@/lib/i18nFormat";
 import BookingModal from "../components/BookingModal";
 import DestinationDetailModal, { type DestinationDetail } from "../components/DestinationDetailModal";
 import AvailabilityBadge, { AvailabilityDates } from "../components/AvailabilityBadge";
 
 type Dest = DestinationDetail & {
+  destId?: string;
   img: string; badge: string; nights: string;
   stars: number; rating: number; desc: string; country: string;
 };
 
 const srbija: Dest[] = [
   {
+    destId: "zim-kopaonik",
     name: "Kopaonik — Grand Hotel & Spa",
     img: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=600&q=80",
     gallery: [
@@ -30,6 +35,7 @@ const srbija: Dest[] = [
     available: ["Dec 27–Jan 3", "Jan 10–17", "Jan 24–31", "Feb 7–14", "Feb 21–28", "Mar 7–14"],
   },
   {
+    destId: "zim-zlatibor-snow",
     name: "Zlatibor — Mona Hotel Snow",
     img: "https://images.unsplash.com/photo-1508193638397-1c4234db14d8?w=600&q=80",
     gallery: [
@@ -50,6 +56,7 @@ const srbija: Dest[] = [
     available: ["Dec 26–31", "Jan 5–10", "Jan 18–23", "Feb 1–6", "Feb 15–20", "Mar 1–6"],
   },
   {
+    destId: "zim-stara",
     name: "Stara Planina — Ski Jablaničko",
     img: "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=600&q=80",
     gallery: [
@@ -72,6 +79,7 @@ const srbija: Dest[] = [
 
 const inostranstvo: Dest[] = [
   {
+    destId: "zim-slo",
     name: "Slovenija — Kranjska Gora",
     img: "https://images.unsplash.com/photo-1549880338-65ddcdfd017b?w=600&q=80",
     gallery: [
@@ -92,6 +100,7 @@ const inostranstvo: Dest[] = [
     available: ["Dec 27–Jan 1", "Jan 10–15", "Jan 24–29", "Feb 7–12", "Feb 21–26"],
   },
   {
+    destId: "zim-aus",
     name: "Austrija — Innsbruck Ski Resort",
     img: "https://images.unsplash.com/photo-1478827536114-da961b7f86d2?w=600&q=80",
     gallery: [
@@ -112,6 +121,7 @@ const inostranstvo: Dest[] = [
     available: ["Dec 21–28", "Jan 4–11", "Jan 18–25", "Feb 8–15", "Feb 22–Mar 1"],
   },
   {
+    destId: "zim-ita",
     name: "Italija — Dolomiti, Val Gardena",
     img: "https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=600&q=80",
     gallery: [
@@ -132,6 +142,7 @@ const inostranstvo: Dest[] = [
     available: ["Dec 22–29", "Jan 3–10", "Jan 17–24", "Feb 7–14", "Feb 21–28"],
   },
   {
+    destId: "zim-ch",
     name: "Švajcarska — Verbier",
     img: "https://images.unsplash.com/photo-1491555103944-7c647fd857e6?w=600&q=80",
     gallery: ["https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=80"],
@@ -151,6 +162,7 @@ const inostranstvo: Dest[] = [
 ];
 
 export default function ZimovanjaPage() {
+  const { t, i18n } = useTranslation();
   const [modal, setModal] = useState<{ open: boolean; name: string; price: string }>({ open: false, name: "", price: "" });
   const [tab, setTab] = useState<"srbija" | "inostranstvo">("srbija");
   const [selectedDetail, setSelectedDetail] = useState<DestinationDetail | null>(null);
@@ -163,6 +175,58 @@ export default function ZimovanjaPage() {
 
   const list = tab === "srbija" ? srbija : inostranstvo;
 
+  function ZimCard({ d }: { d: Dest }) {
+    const desc = useDestLineString(d.destId, "desc", d.desc);
+    const { field, arrField } = useTranslatedDestination(d);
+    const name = field("name");
+    const badge = field("badge");
+    const includes = arrField("includes");
+    const available = arrField("available");
+    return (
+      <div className="bg-white rounded-3xl shadow-lg overflow-hidden card-hover border border-gray-100">
+        <div className="relative h-52 overflow-hidden">
+          <img src={d.img} alt={name} className="w-full h-full object-cover"/>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"/>
+          <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap">
+            <span className="badge-gold text-xs">{badge}</span>
+            <AvailabilityBadge dates={available} size="sm" />
+          </div>
+          <div className="absolute top-3 right-3 bg-white/90 rounded-full px-2 py-0.5 text-xs font-bold text-yellow-600">{"⭐".repeat(d.stars)}</div>
+          <div className="absolute bottom-3 left-3 right-3">
+            <h3 className="font-serif font-bold text-lg text-white leading-tight">{name}</h3>
+            <p className="text-white/70 text-xs">{formatNights(d.nights, t, i18n.language)}</p>
+          </div>
+        </div>
+        <div className="p-5">
+          <p className="text-gray-600 text-sm leading-relaxed mb-4">{desc}</p>
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {includes.slice(0, 4).map(i => (
+              <span key={i} className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full">✓ {i}</span>
+            ))}
+          </div>
+          <div className="mb-4">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">{t("pages.zimovanja.termini")}</p>
+            <AvailabilityDates dates={available} max={3} />
+          </div>
+          <div className="flex items-center justify-between border-t border-gray-100 pt-4">
+            <div>
+              <p className="text-xs text-gray-500">{t("common.pricePerPerson")}</p>
+              <p className="price-tag">{t("home.from")} {d.price}</p>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setSelectedDetail(d)} className="px-3 py-2 border-2 border-blue-700 text-blue-700 hover:bg-blue-50 text-xs font-bold rounded-xl transition-colors">
+                {t("home.viewDetails")}
+              </button>
+              <button onClick={() => setModal({ open: true, name, price: d.price })} className="px-3 py-2 btn-gold text-xs font-bold rounded-xl">
+                {t("home.reserve")}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
       {/* Hero */}
@@ -170,29 +234,29 @@ export default function ZimovanjaPage() {
         <img src="https://images.unsplash.com/photo-1549880338-65ddcdfd017b?w=1600&q=80" alt="Ski" className="w-full h-full object-cover"/>
         <div className="absolute inset-0 bg-blue-900/60"/>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white pt-20">
-          <p className="text-yellow-400 font-semibold uppercase tracking-widest text-sm mb-2">Sezona 2025/2026</p>
-          <h1 className="font-serif text-5xl font-bold text-white mb-3">Zimovanja</h1>
-          <p className="text-blue-100 text-lg">Skijanje, adrenalin i zimska bajka na najboljim skijalištima</p>
+          <p className="text-yellow-400 font-semibold uppercase tracking-widest text-sm mb-2">{t("pages.zimovanja.heroTag")}</p>
+          <h1 className="font-serif text-5xl font-bold text-white mb-3">{t("pages.zimovanja.heroTitle")}</h1>
+          <p className="text-blue-100 text-lg">{t("pages.zimovanja.heroSub")}</p>
         </div>
       </div>
 
       {/* Info bar */}
       <div className="bg-blue-800 text-white py-3">
         <div className="max-w-7xl mx-auto px-4 flex gap-8 text-sm flex-wrap justify-center">
-          <span>⛷️ <strong>Ski pass</strong> uključen u cenu</span>
-          <span>🎿 <strong>Oprema</strong> dostupna na licu mesta</span>
-          <span>🏔️ <strong>Ski škola</strong> za sve uzraste</span>
-          <span>🚌 <strong>Polasci</strong> iz Loznice i Beograda</span>
+          <span>⛷️ {t("pages.zimovanja.info1")}</span>
+          <span>🎿 {t("pages.zimovanja.info2")}</span>
+          <span>🏔️ {t("pages.zimovanja.info3")}</span>
+          <span>🚌 {t("pages.zimovanja.info4")}</span>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="sticky top-20 z-30 bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4 flex items-center gap-0">
-          {(["srbija", "inostranstvo"] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)}
-              className={`px-8 py-4 font-semibold text-sm transition-all border-b-2 ${tab === t ? "border-yellow-500 text-yellow-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
-              {t === "srbija" ? "🇷🇸 Zimovanje u Srbiji" : "✈️ Inostranstvo"}
+          {(["srbija", "inostranstvo"] as const).map((tabKey) => (
+            <button key={tabKey} onClick={() => setTab(tabKey)}
+              className={`px-8 py-4 font-semibold text-sm transition-all border-b-2 ${tab === tabKey ? "border-yellow-500 text-yellow-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
+              {tabKey === "srbija" ? t("pages.zimovanja.tabSerbia") : t("pages.zimovanja.tabAbroad")}
             </button>
           ))}
         </div>
@@ -204,8 +268,8 @@ export default function ZimovanjaPage() {
           <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 mb-10 flex gap-4 items-start">
             <span className="text-2xl">✈️</span>
             <div>
-              <p className="font-bold text-blue-800">Avio i autobus polasci iz Srbije</p>
-              <p className="text-blue-700 text-sm mt-1">Za Sloveniju i bliže destinacije — komforni autobus iz Loznice i Beograda. Za Austriju, Italiju i Švajcarsku — avio karta iz Beograda uključena u cenu aranžmana.</p>
+              <p className="font-bold text-blue-800">{t("pages.zimovanja.bannerAbroadTitle")}</p>
+              <p className="text-blue-700 text-sm mt-1">{t("pages.zimovanja.bannerAbroadBody")}</p>
             </div>
           </div>
         )}
@@ -215,55 +279,15 @@ export default function ZimovanjaPage() {
           <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-5 mb-10 flex gap-4 items-start">
             <span className="text-2xl">🚌</span>
             <div>
-              <p className="font-bold text-yellow-800">Polasci autobusom — bez avio karata</p>
-              <p className="text-yellow-700 text-sm mt-1">Svi aranžmani u Srbiji uključuju komforan autobus polazak iz Loznice i Beograda. Nema brige oko karata — sve je u ceni.</p>
+              <p className="font-bold text-yellow-800">{t("pages.zimovanja.bannerSrbTitle")}</p>
+              <p className="text-yellow-700 text-sm mt-1">{t("pages.zimovanja.bannerSrbBody")}</p>
             </div>
           </div>
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {list.map((d) => (
-            <div key={d.name} className="bg-white rounded-3xl shadow-lg overflow-hidden card-hover border border-gray-100">
-              <div className="relative h-52 overflow-hidden">
-                <img src={d.img} alt={d.name} className="w-full h-full object-cover"/>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"/>
-                <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap">
-                  <span className="badge-gold text-xs">{d.badge}</span>
-                  <AvailabilityBadge dates={d.available} size="sm" />
-                </div>
-                <div className="absolute top-3 right-3 bg-white/90 rounded-full px-2 py-0.5 text-xs font-bold text-yellow-600">{"⭐".repeat(d.stars)}</div>
-                <div className="absolute bottom-3 left-3 right-3">
-                  <h3 className="font-serif font-bold text-lg text-white leading-tight">{d.name}</h3>
-                  <p className="text-white/70 text-xs">{d.nights}</p>
-                </div>
-              </div>
-              <div className="p-5">
-                <p className="text-gray-600 text-sm leading-relaxed mb-4">{d.desc}</p>
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {d.includes.slice(0, 4).map(i => (
-                    <span key={i} className="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full">✓ {i}</span>
-                  ))}
-                </div>
-                <div className="mb-4">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Termini:</p>
-                  <AvailabilityDates dates={d.available} max={3} />
-                </div>
-                <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-                  <div>
-                    <p className="text-xs text-gray-500">Cena po osobi</p>
-                    <p className="price-tag">od {d.price}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => setSelectedDetail(d)} className="px-3 py-2 border-2 border-blue-700 text-blue-700 hover:bg-blue-50 text-xs font-bold rounded-xl transition-colors">
-                      Detaljnije →
-                    </button>
-                    <button onClick={() => setModal({ open: true, name: d.name, price: d.price })} className="px-3 py-2 btn-gold text-xs font-bold rounded-xl">
-                      Rezerviši
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ZimCard key={d.name} d={d} />
           ))}
         </div>
       </div>

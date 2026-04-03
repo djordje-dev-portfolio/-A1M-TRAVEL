@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { createBooking } from "../lib/api";
 
 interface BookingModalProps {
@@ -10,6 +11,7 @@ interface BookingModalProps {
 }
 
 export default function BookingModal({ isOpen, onClose, destination, price, destinationType }: BookingModalProps) {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [bookingId, setBookingId] = useState<number | null>(null);
@@ -47,7 +49,7 @@ export default function BookingModal({ isOpen, onClose, destination, price, dest
       setBookingId(result.booking.id);
       setStep(3);
     } catch (err: any) {
-      setError(err.message || "Greška pri rezervaciji. Pokušajte ponovo.");
+      setError(err.message || t("booking.error"));
     } finally {
       setLoading(false);
     }
@@ -64,7 +66,7 @@ export default function BookingModal({ isOpen, onClose, destination, price, dest
           <button onClick={handleClose} className="absolute top-4 right-4 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors text-sm">
             ✕
           </button>
-          <p className="text-blue-200 text-xs font-semibold uppercase tracking-wider mb-1">Rezervacija Aranžmana</p>
+          <p className="text-blue-200 text-xs font-semibold uppercase tracking-wider mb-1">{t("booking.title")}</p>
           <h3 className="font-serif text-lg font-bold text-white">{destination}</h3>
           <p className="text-yellow-300 font-bold text-base mt-0.5">{price}</p>
         </div>
@@ -72,7 +74,7 @@ export default function BookingModal({ isOpen, onClose, destination, price, dest
         {/* Progress */}
         {step < 3 && (
           <div className="flex gap-0 border-b border-gray-100">
-            {["Podaci", "Pregled"].map((s, i) => (
+            {[t("booking.stepData"), t("booking.stepReview")].map((s, i) => (
               <div key={s} className={`flex-1 py-2 text-center text-xs font-bold ${step === i+1 ? "text-blue-700 border-b-2 border-blue-600" : "text-gray-400"}`}>
                 {i+1}. {s}
               </div>
@@ -85,101 +87,103 @@ export default function BookingModal({ isOpen, onClose, destination, price, dest
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-3xl">✅</span>
             </div>
-            <h3 className="font-serif text-2xl font-bold text-gray-900 mb-2">Rezervacija Potvrđena!</h3>
+            <h3 className="font-serif text-2xl font-bold text-gray-900 mb-2">{t("booking.confirmed")}</h3>
             <div className="bg-blue-50 rounded-2xl p-4 text-left mb-4 text-sm">
-              <p className="text-gray-600"><strong>Broj rezervacije:</strong> <span className="text-blue-700 font-black">#{bookingId}</span></p>
-              <p className="text-gray-600 mt-1"><strong>Destinacija:</strong> {destination}</p>
-              <p className="text-gray-600 mt-1"><strong>Gosti:</strong> {form.guests}</p>
-              <p className="text-gray-600 mt-1"><strong>Plaćanje:</strong> {form.payment === "card" ? "💳 Kreditna kartica" : "📋 Rezervacija"}</p>
+              <p className="text-gray-600"><strong>{t("booking.bookingNo")}</strong> <span className="text-blue-700 font-black">#{bookingId}</span></p>
+              <p className="text-gray-600 mt-1"><strong>{t("booking.destination")}</strong> {destination}</p>
+              <p className="text-gray-600 mt-1"><strong>{t("booking.guests")}</strong> {form.guests}</p>
+              <p className="text-gray-600 mt-1"><strong>{t("booking.payment")}</strong> {form.payment === "card" ? `💳 ${t("booking.card")}` : `📋 ${t("booking.reservation")}`}</p>
             </div>
             <p className="text-sm text-gray-500 mb-6">
-              Potvrda je poslata na <strong className="text-blue-700">{form.email}</strong>. Kontaktiraćemo Vas u roku od 24h.
+              {t("booking.emailSent")} <strong className="text-blue-700">{form.email}</strong>. {t("booking.contact24")}
             </p>
-            <button onClick={handleClose} className="w-full py-3 btn-gold text-sm font-bold">Zatvori</button>
+            <button onClick={handleClose} className="w-full py-3 btn-gold text-sm font-bold">{t("booking.close")}</button>
           </div>
         ) : step === 2 ? (
           <div className="p-6">
-            <h4 className="font-bold text-gray-900 mb-4">Pregled rezervacije</h4>
+            <h4 className="font-bold text-gray-900 mb-4">{t("booking.reviewTitle")}</h4>
             <div className="bg-gray-50 rounded-2xl p-4 space-y-2 text-sm mb-6">
-              <p><span className="text-gray-500">Destinacija:</span> <strong>{destination}</strong></p>
-              <p><span className="text-gray-500">Ime:</span> <strong>{form.name}</strong></p>
-              <p><span className="text-gray-500">Email:</span> <strong>{form.email}</strong></p>
-              {form.phone && <p><span className="text-gray-500">Telefon:</span> <strong>{form.phone}</strong></p>}
-              <p><span className="text-gray-500">Gosti:</span> <strong>{form.guests}</strong></p>
-              {form.checkIn && <p><span className="text-gray-500">Dolazak:</span> <strong>{form.checkIn}</strong></p>}
-              {form.checkOut && <p><span className="text-gray-500">Odlazak:</span> <strong>{form.checkOut}</strong></p>}
-              <p><span className="text-gray-500">Plaćanje:</span> <strong>{form.payment === "card" ? "💳 Kartica" : "📋 Rezervacija"}</strong></p>
+              <p><span className="text-gray-500">{t("booking.destination")}</span> <strong>{destination}</strong></p>
+              <p><span className="text-gray-500">{t("booking.name")}:</span> <strong>{form.name}</strong></p>
+              <p><span className="text-gray-500">{t("booking.email")}:</span> <strong>{form.email}</strong></p>
+              {form.phone && <p><span className="text-gray-500">{t("booking.phone")}:</span> <strong>{form.phone}</strong></p>}
+              <p><span className="text-gray-500">{t("booking.guests")}</span> <strong>{form.guests}</strong></p>
+              {form.checkIn && <p><span className="text-gray-500">{t("booking.checkIn")}:</span> <strong>{form.checkIn}</strong></p>}
+              {form.checkOut && <p><span className="text-gray-500">{t("booking.checkOut")}:</span> <strong>{form.checkOut}</strong></p>}
+              <p><span className="text-gray-500">{t("booking.payment")}</span> <strong>{form.payment === "card" ? `💳 ${t("booking.card")}` : `📋 ${t("booking.reservation")}`}</strong></p>
             </div>
             {error && <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-700 text-sm mb-4">⚠️ {error}</div>}
             <div className="flex gap-3">
               <button onClick={() => setStep(1)} className="flex-1 py-3 border-2 border-gray-200 rounded-xl font-semibold text-gray-600 hover:border-gray-300 text-sm">
-                ← Nazad
+                ← {t("booking.back")}
               </button>
               <button onClick={handleSubmit as any} disabled={loading}
                 className="flex-1 py-3 btn-gold text-sm font-bold disabled:opacity-60 disabled:cursor-not-allowed">
-                {loading ? "⏳ Šaljem..." : "✅ Potvrdi Rezervaciju"}
+                {loading ? `⏳ ${t("booking.sending")}` : `✅ ${t("booking.confirm")}`}
               </button>
             </div>
           </div>
         ) : (
           <form onSubmit={(e) => { e.preventDefault(); setStep(2); }} className="p-6 space-y-3.5">
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Ime i prezime *</label>
+              <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">{t("booking.name")} *</label>
               <input required value={form.name} onChange={e => setForm({...form, name: e.target.value})}
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 placeholder="Marko Marković"/>
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Email *</label>
+              <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">{t("booking.email")} *</label>
               <input required type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})}
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 placeholder="marko@email.com"/>
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Telefon</label>
+              <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">{t("booking.phone")}</label>
               <input value={form.phone} onChange={e => setForm({...form, phone: e.target.value})}
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 placeholder="+381 60 ..."/>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Dolazak</label>
+                <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">{t("booking.checkIn")}</label>
                 <input type="date" value={form.checkIn} onChange={e => setForm({...form, checkIn: e.target.value})}
                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500"/>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Odlazak</label>
+                <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">{t("booking.checkOut")}</label>
                 <input type="date" value={form.checkOut} onChange={e => setForm({...form, checkOut: e.target.value})}
                   className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500"/>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Broj gostiju</label>
+                <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">{t("booking.guestsLabel")}</label>
                 <select value={form.guests} onChange={e => setForm({...form, guests: e.target.value})}
                   className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500">
-                  {[1,2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n} {n===1?"osoba":"osobe/a"}</option>)}
+                  {[1,2,3,4,5,6,7,8].map(n => (
+                    <option key={n} value={n}>{n === 1 ? t("booking.guest1") : t("booking.guestN", { count: n })}</option>
+                  ))}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Plaćanje</label>
+                <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">{t("booking.paymentLabel")}</label>
                 <select value={form.payment} onChange={e => setForm({...form, payment: e.target.value})}
                   className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500">
-                  <option value="card">💳 Kartica</option>
-                  <option value="reservation">📋 Rezervacija</option>
+                  <option value="card">💳 {t("booking.card")}</option>
+                  <option value="reservation">📋 {t("booking.reservation")}</option>
                 </select>
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">Napomena (opciono)</label>
+              <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wide">{t("booking.notes")}</label>
               <textarea value={form.notes} onChange={e => setForm({...form, notes: e.target.value})}
-                rows={2} placeholder="Posebni zahtevi, pitanja..."
+                rows={2} placeholder={t("booking.notesPh")}
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-500 resize-none"/>
             </div>
             <button type="submit" className="w-full py-3.5 btn-gold font-bold text-sm mt-1">
-              Dalje — Pregled rezervacije →
+              {t("booking.next")}
             </button>
-            <p className="text-xs text-gray-400 text-center">Bez naknade · Besplatna promena termina · Sigurno plaćanje</p>
+            <p className="text-xs text-gray-400 text-center">{t("booking.footerNote")}</p>
           </form>
         )}
       </div>
